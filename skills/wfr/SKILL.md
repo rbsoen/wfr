@@ -1,6 +1,6 @@
 ---
 name: wfr
-description: Run an effort inside one wfr `.wf` tracker. Use when a `.wf` file is named.
+description: Run an effort inside one wfr `.wf` tracker. Use when a `.wf` file is named, or when `/wfr` starts one from a prose brief.
 ---
 
 One effort = one `.wf` file. What it replaces: a plan doc, pile of `.md`, tracker issues. Two things live in it, each derived from the one before:
@@ -9,6 +9,8 @@ One effort = one `.wf` file. What it replaces: a plan doc, pile of `.md`, tracke
 2. **Spec** - what the resolved map says to build. `impl` tickets are its children.
 
 **Deliverable** = result of executing the `impl` tickets.
+
+**Kinds, not code.** The examples here are software because that is where wfr was cut; the tree is not. A trip, a move, a hire has a destination, fog, and decisions that raise more decisions - it charts the same. Invoking wfr is the human's call that this effort is tracked: chart it, whatever its subject. Only the deliverable assumes a codebase.
 
 The basic flow:
 1. Write to `.wf`
@@ -26,7 +28,7 @@ Run `wfr.py` bare (in PATH, if not, in the skill's dir), once per session: its h
 
 Then, `wfr.py map FILE`, which also says which session this is:
 
-- **No file** - you are charting. Name the destination.
+- **No file** - you are charting. `wfr.py init FILE --title "<the effort>"` first; where the human named no path, slug the effort into `$PWD/<slug>.wf` and say the path back. Then name the destination.
 - **A map in it** - you are continuing. The root holds the destination, Notes and fog; read them, take `wfr.py frontier FILE`, pick up there. The destination is settled, and re-grilling it loses a day.
 - **Anything claimed** - check every time, not only on an empty frontier: one stale claim hides its issue silently rather than emptying the list. A claimed `research` or `impl` may be a live parallel session: report it and let the human call it.
 
@@ -121,11 +123,13 @@ Every question is an issue, so carry its id and tracker path in the chat heading
 
 Ask first and write up after and you are transcribing a view: what reaches the file is the compressed version, options and steer and the human's reasoning gone. Hardest to hold when fanning out breadth-first, and when a grill raises a consequence mid-answer.
 
+**A fact only the human holds takes no options, no `recommend` and no `➡️`.** Where they live, what they already own, what happened the last time they did this: unfindable, so ask it bare and resolve with `--picked` omitted, which claims nothing. (`--picked 0` is a different answer: options existed and none of them won.) Everything else is a decision - options and a steer - or a `research`, where the answer is out there to be found.
+
 NB: The issue title only contains the question, never the number (e.g. `Q1`).
 
 **`➡️` carries the option number and nothing else.** No clause, no "because", no aside. Those live in the `.wf`, and is viewed by a human running the server.
 
-**The human types the answer; never resolve an issue from an `AskUserQuestion` call.** A picker offers only the answers you already thought of, and the one that matters is the one you did not: that the premise under the round is wrong. Typed prose is where "none of these, you have misread X" arrives. A round that dies on pushback is this working.
+**The human types the answer, in prose, in the chat.** `AskUserQuestion` carries neither a round nor a resolve. A picker offers only the answers you already thought of, and the one that matters is the one you did not: that the premise under the round is wrong. Typed prose is where "none of these, you have misread X" arrives. A round that dies on pushback is this working.
 
 **An answer need not cover the round.** They answer Q1 and Q3 and say nothing on Q2, where a picker would have forced all three. Silence is not a resolution: leave Q2 open for the next round, never inferred from the answers you did get. They reply against either handle ("Q1: 2, but not for that reason"), and `--picked` records where it landed - option numbers restart at 1 on each issue, so a bare number means nothing unpaired with its Q.
 
@@ -157,7 +161,7 @@ Not every effort reaches here. A destination that was a decision to lock, or a c
 
 Add one `kind=spec` child of the map. Only `block` it on decisions still open when the spec is cut - that's real gating, work waiting on an answer. A spec cut from an already-closed map needs no edges at all: every decision it composes is closed already, so the block would gate nothing, and the map's Decisions list is already the provenance trail back to them. Cut it when the map is **charted**: the frontier holds no decisions and "Not yet specified" is empty. Fog goes stale the moment the issue that lit it resolves, so read the body back before you call it charted. The spec **composes** "Decisions so far" and does not re-argue them; where a decision needs its reasoning, link its issue.
 
-Sketch the **seams** you will test at first - prefer existing ones, take the highest available, aim for one - and check them with the user before writing the rest. Then the body:
+Sketch the **seams** you will test at first - prefer existing ones, take the highest available, aim for one - and check them with the user before writing the rest. Where the effort builds nothing executable there are no seams: skip this and the Testing decisions section. Then the body:
 
 ```markdown
 ## Problem
