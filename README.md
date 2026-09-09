@@ -2,6 +2,8 @@
 
 **Plan → spec → implementation for agentic AI assisted work.**
 
+![](docs/2026-09-10_05-28.png)
+
 Derived from [Matt Pocock's AI Skills for Real Engineers](https://github.com/mattpocock/skills).
 
 It produces a browsable, single-file SQLite `.wf` database integrating the following:
