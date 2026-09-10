@@ -1,6 +1,7 @@
 ---
 name: wfr
 description: Run an effort inside one wfr `.wf` tracker. Use when a `.wf` file is named, or when `/wfr` starts one from a prose brief.
+disallowed-tools: AskUserQuestion
 ---
 
 One effort = one `.wf` file. What it replaces: a plan doc, pile of `.md`, tracker issues. Two things live in it:
@@ -104,7 +105,7 @@ Per [grilling](./reference/grilling.md): the frontier in one round, each questio
 
 A round is the **HITL** part of that frontier - `research` dispatches instead of being asked. Two of its words are wfr's: **frontier** is `wfr.py frontier FILE`, and a question depending on another still open is a `block`, which is what defers it to a later round.
 
-Every question is an issue, so carry its id and tracker path in the chat heading:
+**Every question is an issue**: a whole round, one follow-up, an aside you thought of mid-answer. So carry its id and tracker path in the chat heading:
 ```
 ❓ **Q1** - **Which store backs the queue?** (#7, /i/7)
 
@@ -117,7 +118,7 @@ Every question is an issue, so carry its id and tracker path in the chat heading
 **Write the question** before you ask it:
 1. `add` every question in the round
 2. write each one's `option` rows and your `recommend`
-3. only then, put the round in the chat.
+3. only then, put the round in the chat, as prose you type.
 
 Ask first and write up after and you are transcribing a view: what reaches the file is the compressed version, options and steer and the human's reasoning gone. Hardest to hold when fanning out breadth-first, and when a grill raises a consequence mid-answer.
 

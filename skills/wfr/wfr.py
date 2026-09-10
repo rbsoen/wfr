@@ -376,7 +376,14 @@ def die(msg):
 def read_stdin(what):
     if sys.stdin.isatty():
         die('%s reads from stdin; redirect a file into it' % what)
-    return sys.stdin.read()
+    s = sys.stdin.read()
+    # echo what arrived. A heredoc that swallowed a shell operator, a truncated
+    # pipe, an empty slurp: every one of them writes silently and surfaces only
+    # when a human reads the tracker, hours later
+    print('%s: %d bytes, first line: %s'
+          % (what, len(s), s.strip().split('\n')[0][:60] or '(empty)'))
+    return s
+
 
 
 # ---------------------------------------------------------------- store
