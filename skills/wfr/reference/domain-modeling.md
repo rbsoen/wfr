@@ -22,7 +22,7 @@ When the user states how something works, check whether the code agrees. If you 
 
 ### Update glossary inline
 
-When a term is resolved, update the glossary right there. Don't batch these up: capture them as they happen. Use the [context format](domain-modeling_context-format.md).
+When a term is resolved, update the glossary right there. Don't batch these up: capture them as they happen. Use the [glossary format](domain-modeling_glossary-format.md).
 
 The glossary should be totally devoid of implementation details. Do not treat it as a spec, a scratch pad, or a repository for implementation decisions.
 

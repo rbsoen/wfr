@@ -345,7 +345,7 @@ CROSS-ISSUE LINKS
 BROWSING
   serve has five tabs, with breadcrumbs under them:
       /       Issues       the whole tree
-      /d/     Definitions  the glossary, as CONTEXT.md renders it
+      /g/     Glossary     the glossary
       /a/     Decisions    the ADRs, /a/N for one
       /r/     Research     the research store, /r/ID for one
       /p/     Prototypes   file tree left, raw code right; ?raw for plain text
@@ -1822,7 +1822,7 @@ padding:4px 10px;font-size:12px;color:var(--dim)}
 """
 
 
-NAV = (('/', 'Issues'), ('/d/', 'Definitions'), ('/a/', 'Decisions'),
+NAV = (('/', 'Issues'), ('/g/', 'Glossary'), ('/a/', 'Decisions'),
        ('/r/', 'Research'), ('/p/', 'Prototypes'))
 
 
@@ -2010,8 +2010,8 @@ def view_terms(db):
     c = db.execute('SELECT count(*) c FROM term').fetchone()['c']
     inner = ('<div class="body">%s</div>' % markdown(render_context(db, heading=False))
              if c else '<p class="gist">The glossary is empty.</p>')
-    return page('Definitions', '%d term%s' % (c, '' if c == 1 else 's'), inner,
-                '/d/', [(None, 'Definitions')], the_root(db)['title'])
+    return page('Glossary', '%d term%s' % (c, '' if c == 1 else 's'), inner,
+                '/g/', [(None, 'Glossary')], the_root(db)['title'])
 
 
 def view_adrs(db):
@@ -2161,7 +2161,7 @@ def cmd_serve(a):
                     return self.reply(200, view_tree(db))
                 if route in ('/r', '/r/'):
                     return self.reply(200, view_research(db))
-                if route in ('/d', '/d/'):
+                if route in ('/g', '/g/'):
                     return self.reply(200, view_terms(db))
                 if route in ('/a', '/a/'):
                     return self.reply(200, view_adrs(db))
