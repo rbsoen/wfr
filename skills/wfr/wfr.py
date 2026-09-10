@@ -351,12 +351,14 @@ BROWSING
       /p/     Prototypes   file tree left, raw code right; ?raw for plain text
 
 GOTCHAS
+  - A heredoc goes alone in its shell call, or a second command in the call
+    takes the redirect. set ID status closed is refused on a gistless child:
+    resolve is what closes it, comment and map line included.
   - Claim before working, or two sessions do the same issue.
   - A dead session leaves an issue claimed forever, invisible to the frontier.
     Release it: claim FILE ID ""
   - wfr owns two map headings, "%s" and "%s". set refuses a body that alters
-    either - round-trip them unchanged and edit the fog and the Notes. To
-    change a line use gist; to rule an issue out of scope use resolve --oos.
+    either - round-trip them unchanged and edit the fog and the Notes.
   - Nothing is deleted. An issue ruled out of scope is closed, not removed.
   - A question that must wait for another question is not an option row on
     it; it still needs: block FILE THIS --on THAT
@@ -977,6 +979,16 @@ def cmd_set(a):
             % a.id)
     if 'status' in fields and fields['status'] not in ('open', 'closed'):
         die('status is open or closed, not %r' % fields['status'])
+    if fields.get('status') == 'closed' and r['parent'] is not None and not r['gist']:
+        # closing here posts no comment and lands no map line: a resolve in
+        # everything but the parts a human reads later
+        die('#%d has no gist yet, so resolve is what closes it - one transaction:'
+            ' the comment, the closed issue, the map line.\n'
+            "    wfr.py resolve %s %d <<'EOF'\n"
+            '    Subject line, becomes the gist\n'
+            '\n'
+            '    The body, becomes the resolution comment.\n'
+            '    EOF' % (a.id, a.file, a.id))
     if 'parent' in fields:
         p = int(fields['parent']) if fields['parent'] else None
         if p:
