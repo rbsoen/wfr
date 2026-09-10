@@ -6,7 +6,7 @@ Its job:
 
 1. Investigate the question against **primary sources**, not a secondary write-up of them. Follow every claim back to the source that owns it.
 2. Write the findings to a single Markdown file, citing each claim's source.
-3. Save it to the session scratchpad and report the **path** it wrote. The caller files it into their own store; never write into the repo, and never let the findings reach the caller only as your summary - a summary has already dropped the sources that made this research.
+3. Write it to the scratchpad path the caller gave you, and report that **path** back. The caller files it into their own store; never write into the repo, and never let the findings reach the caller only as your summary - a summary has already dropped the sources that made this research.
 
 ## What counts as a valid source
 

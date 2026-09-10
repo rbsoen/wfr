@@ -13,7 +13,7 @@ The two branches produce very different artifacts, so getting this wrong wastes 
 
 ## Rules that apply to both
 
-1. **Throwaway from day one, and clearly marked as such.** Work under the scratchpad and persist it via `wfr.py`'s virtual prototype folder.
+1. **Throwaway from day one, and clearly marked as such.** Work under the scratchpad path the caller gave you and persist it via `wfr.py`'s virtual prototype folder.
 2. **Trivial to run.** A UI prototype starts from one command in the project's task runner: `pnpm <name>`, `python <path>`, `bun <path>`, etc. A logic demo is a single HTML file the user double-clicks. Either way, no thinking required to start it.
 3. **No persistence by default.** State lives in memory. Persistence is the thing the prototype is _checking_, not something it should depend on. If the question explicitly involves a database, hit a scratch DB or a local file with a clear "PROTOTYPE, wipe me" name.
 4. **Skip the polish.** No tests, no error handling beyond what makes the prototype _runnable_, no abstractions. The point is to learn something fast.

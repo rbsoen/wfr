@@ -12,6 +12,8 @@ Run `wfr.py` bare once a session, because that's where the reference is. It ough
 
 Ensure you pass only absolute paths into `wfr.py`; cwd resets between Bash calls.
 
+**The scratchpad** (usually `/tmp/claude-$(id -u)/$(pwd | sed 's:/:-:g')/${CLAUDE_CODE_SESSION_ID}/scratchpad`) is Claude's own session temp dir. Resolve it once and keep the literal path - shell state resets with cwd. Everything this skill makes that is not an issue (findings, prototype code, exports) *passes through* there on its way into the `.wf` via `research --from` or `put`. Work that ends its life in the scratchpad was never delivered. Every subagent you dispatch gets that absolute path in its prompt, and cwd holds the `.wf` alone.
+
 Next up: `wfr.py map FILE`:
 
 * **No file** - you're charting. Pick a slug, initialize with `wfr.py init $PWD/<slug>.wf --title "<the effort>"`, state where it landed, then name the destination.
@@ -68,14 +70,15 @@ Conversation, and the default. HITL: the human answers for themselves and you ne
 A fact from outside this directory that a decision waits on.
 AFK - it never holds up a round because it runs parallel.
 
-1. Create the `research` issue, parent it to the `map` or the `grill` that originates it.
-2. Dispatch a subagent that follows [research](reference/research.md).
-3. It should come back with a **path** in the scratchpad, so slurp THAT file rather than the agent's report:
+1. `add` the `research` issue, parented to the `map` or the `grill` that originates it, and write its body then and there (`--body -`). **A research issue is never bodyless**: the body is the brief - the fact wanted, the decision waiting on it, what counts as an answer - and step 3's prompt is cut from it.
+2. `wfr.py claim FILE N` **before** you dispatch. A background agent is work under way, and an unclaimed research issue is one a parallel session takes and redoes.
+3. Dispatch a subagent that follows [research](reference/research.md), handing it the scratchpad path to write into.
+4. It should come back with a **path** in the scratchpad, so slurp THAT file rather than the agent's report:
 ```
 wfr.py research FILE --from /path/to/findings.md --issue N
 ```
 The research file's title comes from the `# ` heading; `--issue N` hangs it off the question it serves.
-4. Resolve the research issue, the finding as its gist and `/r/ID` as where the detail lives.
+5. Resolve the research issue, the finding as its gist and `/r/ID` as where the detail lives.
 
 #### prototype
 
@@ -92,7 +95,7 @@ Per [grilling](reference/grilling.md): the frontier in one round, each question 
 **Every question is an issue**: a whole round, one follow-up, an aside you thought of mid-answer.
 
 **Write the question** before you ask it:
-1. `add` every question in the round
+1. `add` every question in the round, each with its body (`--body -`) - the framing you would otherwise type under it in the chat
 2. write each one's `option` rows and your `recommend`
 3. only then, put the round in the chat, as prose you type.
 
@@ -100,9 +103,7 @@ Ask first and write up after and you are transcribing a view: what reaches the f
 
 **The issue title itself only contains the question**, never the number (e.g. `Q1`).
 
-**`➡️` carries the option number and nothing else.**
-
-**A fact only the human holds takes no options, no `recommend` and no `➡️`.** Where they live, what they already own, what happened the last time they did this: unfindable, so ask it bare and resolve with `--picked` omitted, which claims nothing. Everything else is a decision - options and a steer - or a `research`, where the answer is out there to be found.
+**A fact only the human holds takes a body, no options, no `recommend` and no `➡️`.** Where they live, what they already own, what happened the last time they did this: unfindable, so ask it bare of options and resolve with `--picked` omitted, which claims nothing. Everything else is a decision - options and a steer - or a `research`, where the answer is out there to be found.
 
 **The human types the answer in prose.** Your options are only the answers you already thought of, and the one that matters is the one you did not: that the premise under the round is wrong. Typed prose is where "none of these, you have misread X" arrives. A round that dies on pushback is this working.
 

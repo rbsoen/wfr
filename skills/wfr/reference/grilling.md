@@ -9,7 +9,7 @@ Format a round like so, one block per question, `---` between them. A question b
 ```
 ❓ **Q1** - **<the question>** (#<id>)
 
-<body, where the question needs one>
+<the issue body, where the question has one>
 
 1. <option>
 2. <option>
@@ -20,6 +20,8 @@ Format a round like so, one block per question, `---` between them. A question b
 
 ❓ **Q2** - ...
 ```
+
+**The `➡️` is the number alone.** Its reasoning went into that issue's `recommend` body at write-up, so the round carries the steer and the file carries the why. The tell that this slipped is an arrow that grew a dash and a clause after the number.
 
 Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
 
