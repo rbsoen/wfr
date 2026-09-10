@@ -158,60 +158,21 @@ A round that ends at step 1 leaves the map describing the effort as it was befor
 
 ## 2. Spec
 
-Not every effort reaches here. A destination that was a decision to lock, or a change made in place, ends at the map: no spec, no deliverable, and the effort closes when the map closes. This phase is for a destination that is something to **build**.
+Not every effort reaches here. This phase is for a destination that is something to **build**. A destination that was a decision to lock, or a change made in place, ends at the map: no spec, no deliverable, and the effort closes when the map closes.
 
 Add one `kind=spec` child of the map. Only `block` it on decisions still open when the spec is cut - that's real gating, work waiting on an answer. A spec cut from an already-closed map needs no edges at all: every decision it composes is closed already, so the block would gate nothing, and the map's Decisions list is already the provenance trail back to them. Cut it when the map is **charted**: the frontier holds no decisions and "Not yet specified" is empty. Fog goes stale the moment the issue that lit it resolves, so read the body back before you call it charted. The spec **composes** "Decisions so far" and does not re-argue them; where a decision needs its reasoning, link its issue.
 
-Sketch the **seams** you will test at first - prefer existing ones, take the highest available, aim for one - and check them with the user before writing the rest. Where the effort builds nothing executable there are no seams: skip this and the Testing decisions section. Then the body:
-
-```markdown
-## Problem
-<user's perspective>
-
-## Solution
-<user's perspective>
-
-## User stories
-<numbered and exhaustive: As an <actor>, I want <feature>, so that <benefit>.
- Changes shape when there is no human actor - see below.>
-
-## Implementation decisions
-<modules, interfaces, schema changes, API contracts. No file paths.>
-
-## Testing decisions
-<the seams, what makes a good test here, prior art in the codebase>
-
-## Out of scope
-```
-
-**The "User stories" section changes shape with the actor; its exhaustiveness never does.** Its job is to enumerate the whole surface so nothing is dropped in silence, and that bar travels even where the form does not fit:
-
-- **A person uses it** - user stories exactly as written. The case they were built for.
-- **Another program uses it** - a library, a CLI in a pipeline, a wire format, a tool like this one. "As a caller I want `frontier` to list takeable issues" only restates the signature. Enumerate the **entry points**: each one, what it accepts, returns, refuses.
-- **Nothing observable changes** - a migration, a rename, a wide refactor. Nobody wants a new thing, so there is no story to tell. Enumerate the **invariants that must survive**, and name what is allowed to change.
-
-Whichever form it takes, a short list means you have not looked yet.
+Then, write it per [spec](reference/spec.md): check seams with user first, the sections the body carries, and what "User stories" actually looks like.
 
 ### Impl tickets
 
-`kind=impl` children of the spec. Never `block` a ticket on the spec itself - parentage already records that it came from there, and a spec-shaped block puts the whole frontier behind one issue that only closes once every ticket is already done. Instead `block` each ticket on the sibling tickets it actually depends on, mirroring the dependency shape the map's decisions established. Follow [to-tickets](./reference/to-tickets.md) to draft and quiz the vertical slices - tracer bullets, the wide-refactor exception, presenting the breakdown and iterating until the user approves.
+`kind=impl` children of the spec. Follow [to-tickets](./reference/to-tickets.md) to draft and quiz the vertical slices - tracer bullets, the wide-refactor exception, what such a ticket looks like, presenting the breakdown and iterating until the user approves.
+
+**Never `block` a ticket on the spec itself** - parentage already records that it came from there, and a spec-shaped block puts the whole frontier behind one issue that only closes once every ticket is already done. Instead `block` each ticket on the sibling tickets it actually depends on, mirroring the dependency shape the map's decisions established.
 
 **A screen nobody has seen is not a ticket yet.** Where a human will look at the result and no resolved issue settled how it looks, add a `prototype` child of that ticket and block it on that - the map's kind, hung where the unseen thing is. Once settled, the ticket cites `/p/<path>` and builds against it, translated into whatever the thing is actually written in: layout, hierarchy and affordances carry from an HTML take into e.g. a desktop window or an ncurses screen, where the markup does not.
 
 **Approved tickets end the session.** Stopping is free here for the same reason it is after a round - the file holds the state. The deliverable takes the frontier fresh, in its own session.
-
-Every impl body carries:
-
-```markdown
-## What to build
-<the end-to-end behaviour, from the user's perspective, not a layer-by-layer list>
-
-## Acceptance criteria
-- ...
-
-## Failing test
-<the test that fails now and passes when this ticket is done, named at its seam. Omit only when nothing here is testable.>
-```
 
 ## 3. Deliverable
 

@@ -44,3 +44,16 @@ Ask:
 - Should any tickets be merged or split further?
 
 Iterate until approved.
+
+## The ticket body
+
+```markdown
+## What to build
+<the end-to-end behaviour, from the user's perspective, not a layer-by-layer list>
+
+## Acceptance criteria
+- ...
+
+## Failing test
+<the test that fails now and passes when this ticket is done, named at its seam. Omit only when nothing here is testable.>
+```
