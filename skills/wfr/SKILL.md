@@ -3,24 +3,24 @@ name: wfr
 description: Run an effort inside one wfr `.wf` tracker. Use when a `.wf` file is named, or when `/wfr` starts one from a prose brief.
 ---
 
-One effort = one `.wf` file. What it replaces: a plan doc, pile of `.md`, tracker issues. Two things live in it, each derived from the one before:
+One effort = one `.wf` file. What it replaces: a plan doc, pile of `.md`, tracker issues. Two things live in it:
 
-1. **Map** - the decision tree. `grill`, `research` and `tasks` are its children.
+1. **Map** - the decision tree. `grill`, `research`, `prototype` and `tasks` are its children.
 2. **Spec** - what the resolved map says to build. `impl` tickets are its children.
 
 **Deliverable** = result of executing the `impl` tickets.
 
-**Kinds, not code.** The examples here are software because that is where wfr was cut; the tree is not. A trip, a move, a hire has a destination, fog, and decisions that raise more decisions - it charts the same. Invoking wfr is the human's call that this effort is tracked: chart it, whatever its subject. Only the deliverable assumes a codebase.
+Keep in mind, **decision trees are universal**. A trip, a move, a hire *also* has destination, fog, and decisions that raise more decisions - it charts the same. Invoking wfr is the human's call that this effort is tracked: chart it, whatever its subject. Only the deliverable assumes a codebase.
 
 The basic flow:
-1. Write to `.wf`
+1. Write to `.wf`.
 2. Let the user read a view (the chat, a disk copy, a subagent's report, an export).
 
 **Views are one-way**. Never round-trip one back into a write. `show` interleaves children and comments into what you see; none of that is body text `set` can hold.
 
 Pass only absolute paths into `wfr.py`.
 
-**The human runs the server; never start one.** `serve` is theirs, already up on a port you do not know and must not choose. Write every link as a bare **path** - `/i/7`, `/r/1`, `/a/2`, `/d/`, `/p/shell.html` - and their browser resolves it. A hostname and port in a round is a guess at someone else's setup.
+**The human runs the server; never start one.** `serve` is theirs, already up on a port you do not know and must not choose. Write every link as a **bare path** - `/i/7`, `/r/1`, `/a/2`, `/d/`, `/p/shell.html` - and their browser resolves it. A hostname and port in a round is a guess at someone else's setup.
 
 ## Before anything
 
@@ -57,8 +57,7 @@ One file, this shape. A spec in its own `.wf`, or a spec root beside the map, ha
 
 #### grilling
 
-Conversation, and the default. HITL: the human answers for themselves and you never answer for them.
-Follow [grilling](./reference/grilling.md) and [domain modeling](./reference/domain-modeling.md).
+Conversation, and the default. HITL: the human answers for themselves and you never answer for them. Follow [grilling](./reference/grilling.md) and [domain modeling](./reference/domain-modeling.md).
 
 **Grills beget grills.** A resolved grill usually raises the next question as a consequence. Add it as a child of the grill that raised it - `--parent` is that grill, not the map - so the tree records what led to what. Encouraged, not the exception.
 
@@ -66,8 +65,7 @@ Follow [grilling](./reference/grilling.md) and [domain modeling](./reference/dom
 
 #### research
 
-A fact from outside this directory that a decision waits on.
-AFK: dispatch a subagent that follows [research](./reference/research.md). It never holds up a round because it runs parallel.
+A fact from outside this directory that a decision waits on. AFK: dispatch a subagent that follows [research](./reference/research.md). It never holds up a round because it runs parallel.
 
 **A research doc goes in the store.** The dispatch comes back with a **path** in the scratchpad, so slurp that file rather than the agent's report:
 
@@ -102,7 +100,7 @@ Manual work gating a decision: provisioning, access, moving data so its shape ca
 
 ### The round
 
-Per `grilling`: the frontier in one round, each question numbered with your `➡️` under it, then wait.
+Per [grilling](./reference/grilling.md): the frontier in one round, each question numbered with your `➡️` under it, then wait.
 
 A round is the **HITL** part of that frontier - `research` dispatches instead of being asked. Two of its words are wfr's: **frontier** is `wfr.py frontier FILE`, and a question depending on another still open is a `block`, which is what defers it to a later round.
 
@@ -110,8 +108,8 @@ Every question is an issue, so carry its id and tracker path in the chat heading
 ```
 ❓ **Q1** - **Which store backs the queue?** (#7, /i/7)
 
-  1. In-process, lost on restart
-  2. SQLite beside the .wf
+1. In-process, lost on restart
+2. SQLite beside the .wf
 
 ➡️ 2
 ```
@@ -195,7 +193,7 @@ Whichever form it takes, a short list means you have not looked yet.
 
 `kind=impl` children of the spec. Never `block` a ticket on the spec itself - parentage already records that it came from there, and a spec-shaped block puts the whole frontier behind one issue that only closes once every ticket is already done. Instead `block` each ticket on the sibling tickets it actually depends on, mirroring the dependency shape the map's decisions established. Follow [to-tickets](./reference/to-tickets.md) to draft and quiz the vertical slices - tracer bullets, the wide-refactor exception, presenting the breakdown and iterating until the user approves.
 
-**A screen nobody has seen is not a ticket yet.** Where a human will look at the result and no resolved issue settled how it looks, add a `prototype` child of that ticket and block it on that - the map's kind, hung where the unseen thing is. Once settled, the ticket cites `/p/<path>` and builds against it, translated into whatever the thing is actually written in: layout, hierarchy and affordances carry from an HTML take into a desktop window or an ncurses screen, where the markup does not.
+**A screen nobody has seen is not a ticket yet.** Where a human will look at the result and no resolved issue settled how it looks, add a `prototype` child of that ticket and block it on that - the map's kind, hung where the unseen thing is. Once settled, the ticket cites `/p/<path>` and builds against it, translated into whatever the thing is actually written in: layout, hierarchy and affordances carry from an HTML take into e.g. a desktop window or an ncurses screen, where the markup does not.
 
 **Approved tickets end the session.** Stopping is free here for the same reason it is after a round - the file holds the state. The deliverable takes the frontier fresh, in its own session.
 
