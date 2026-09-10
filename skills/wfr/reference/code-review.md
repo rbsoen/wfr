@@ -3,7 +3,7 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 - **Standards**: does the code conform to this repo's documented coding standards?
 - **Spec**: does the code faithfully implement the originating issue / spec?
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
+Both axes run as **blind** sub-agents, in parallel: blind to each other, and blind to whoever wrote the code. Each gets the diff and its own axis material - never the rationale of the change. Then this skill aggregates their findings.
 
 ## Process
 
@@ -48,7 +48,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
-### 4. Spawn both sub-agents in parallel
+### 4. Spawn both blind sub-agents in parallel
 
 **Standards sub-agent prompt** should include:
 
