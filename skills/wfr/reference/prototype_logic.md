@@ -13,6 +13,8 @@ Because it's one file with nothing to install, you can hand it to a non-develope
 
 If the question is "what should this look like," this is the wrong branch. Use [UI](prototype_ui.md).
 
+If the crux is a **structural difference between two approaches** — something you'd only see by putting them side by side, not by clicking through states — the shareable artifact is a **diagram**: a Graphviz `.dot`, a PlantUML sequence diagram, a state graph, rendered to something the user can open and point at. Same rule as the HTML demo (a non-developer looks and reacts), other medium. It rides along to the store next to any code the question also needed.
+
 ## Process
 
 ### 1. State the question
@@ -65,3 +67,4 @@ Once the prototype has answered its question, capture the answer, then [capture 
 - **Don't blur the logic and the page together.** If the pure module references the DOM, `document`, or button handlers, it's no longer liftable. Keep the page as a thin shell over a pure module.
 - **Don't reach for a framework, bundler, or server.** One file the recipient double-clicks; a React app or a dev server defeats "shareable".
 - **Don't ship the HTML shell into production.** The page is optimised for being clicked through by hand. The logic module behind it is the bit worth keeping.
+- **Don't hand over a benchmark on its own.** A throwaway bench gives real data, but cold numbers show _that_ two approaches differ, not _how_. Keep the bench — add a diagram beside it so the user can see the difference and argue with it.
