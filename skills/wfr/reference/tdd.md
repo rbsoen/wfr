@@ -10,6 +10,8 @@ When exploring the codebase, read the definitions in the `.wf` or a `CONTEXT.md`
 2. **One slice at a time.** One seam, one test, one minimal implementation per cycle.
 3. **Refactoring is not part of the loop.** It belongs to the [review stage](code-review.md), not the red → green implementation cycle.
 
+When the slice changes existing behavior rather than adding it, run the new test against the old behavior and confirm it goes red for the reason you're fixing — a behavior-change test never seen fail is pinning nothing.
+
 ## What a good test is
 
 Tests verify behavior not through implementation details, but public interfaces. Code can change entirely; tests shouldn't.
