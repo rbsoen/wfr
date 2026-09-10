@@ -64,6 +64,8 @@ Conversation, and the default. HITL: the human answers for themselves and you ne
 
 **A word you had to pin down is a `term`.** Write it with `wfr.py term` as that grill resolves, not at the round close - a resolve body explaining what a word means here is a definition in the wrong place. The tell is disambiguation: you asked which sense was meant, or the human corrected your usage.
 
+**A format you had to pin down takes an example.** The glossary holds none of it - a shape is implementation detail - so one literal instance goes in the resolve body as that grill resolves: a code block representing the data type. Structs, keys, the works. The tell is a decision that names a format and stops there: "JSON it is", the keys listed in prose, the nesting and the types left to whoever writes the code.
+
 #### research
 
 A fact from outside this directory that a decision waits on. AFK: dispatch a subagent that follows [research](./reference/research.md). It never holds up a round because it runs parallel.
