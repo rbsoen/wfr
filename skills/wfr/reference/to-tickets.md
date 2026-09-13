@@ -4,7 +4,7 @@ Break a plan, spec, or conversation into **tickets**: tracer-bullet vertical sli
 
 ## 1. Gather context
 
-Work from whatever is already in the conversation context. If a reference (a spec path, an issue number or URL) was passed as an argument, fetch it and read its full body and comments.
+Work from whatever is already in the conversation context. If a reference (a spec path, a ticket number or URL) was passed as an argument, fetch it and read its full body and comments.
 
 ## 2. Explore the codebase (optional)
 
