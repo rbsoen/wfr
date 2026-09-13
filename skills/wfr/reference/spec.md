@@ -29,3 +29,5 @@ Sketch the **seams** you will test at first - prefer existing ones, take the hig
 - **Nothing observable changes** - a migration, a rename, a wide refactor. Nobody wants a new thing, so there is no story to tell. Enumerate the **invariants that must survive**, and name what is allowed to change.
 
 Whichever form it takes, a short list means you have not looked yet.
+
+**A gap the spec needs decided and no grill settled** sorts by whether it is hard to reverse. Hard to reverse (a schema, a wire format, a public interface): `add` a `grilling` child of the spec and `block` the spec on it. Easy to reverse: decide it in the body.
