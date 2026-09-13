@@ -8,7 +8,9 @@ A `.wf` file represents one effort. It replaces plan docs and piles of `.md` wit
 
 ## Before anything
 
-Run `wfr.py` bare once a session, because that's where the reference is. It ought to be in PATH; if not, it is in the skill directory. Offer to place it in the user's PATH as a symlink if not already.
+Run `wfr.py` bare once a session, because that's where the reference is: its ~270 lines are all reference; read every one. It ought to be in PATH; if not, it is in the skill directory. Offer to place it in the user's PATH as a symlink if not already.
+
+Before the first question of a session, Read [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md): the round format, the stop rule and the glossary rules live there.
 
 Ensure you pass only absolute paths into `wfr.py`; cwd resets between Bash calls.
 
@@ -18,7 +20,7 @@ Next up: `wfr.py map FILE`:
 
 * **No file** - you're charting. Pick a slug, initialize with `wfr.py init $PWD/<slug>.wf --title "<the effort>"`, state where it landed, then name the destination.
 * **A map in it** - you're continuing. Root holds the destination, notes, fog; read them, take `wfr.py frontier FILE`, pick up there; the destination is settled.
-* **Anything claimed** - check every time, not only on an empty frontier: one stale claim hides its issue silently rather than emptying the list. A claimed `research` or `impl` may be a live parallel session: report it and let the human call it.
+* **Anything claimed** - check every time, not only on an empty frontier: one stale claim hides its issue silently rather than emptying the list. A claimed `research`, `prototype` or `impl` may be a live parallel session: report it and let the human call it.
 
 Invoking wfr is the human's call that this effort is tracked. Chart it, whatever the subject. **Decision trees are universal**, only a deliverable assumes a codebase.
 
@@ -49,7 +51,7 @@ Write an item to the `.wf` first, *then* let the user read a view (the chat, a d
 
 ## 1. Map
 
-**Name the destination first** - it fixes the scope, so every later issue is judged against it. Follow [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md) to pin down what this effort is finding its way to: a spec to build from, a decision to lock, a change made in place. Then grill again **breadth-first**, fanning across the space rather than deep on one thread, and seed the map body: Destination, Notes, fog under "Not yet specified". If that surfaces no fog there is nothing to chart; say so and stop.
+**Name the destination first** - it fixes the scope, so every later issue is judged against it. Follow [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md) to pin down what this effort is finding its way to: a spec to build from, a decision to lock, a change made in place. Then grill again **breadth-first**, fanning across the space rather than deep on one thread, and seed the map body: Destination, Notes, fog under "Not yet specified". Questions the brief names seed the frontier; the breadth pass fills it. If that surfaces no fog there is nothing to chart; say so and stop.
 
 **Plan, don't do.** Map issues resolve into decisions, not code. The pull to build is the signal the map is done and the spec is next.
 
@@ -61,13 +63,13 @@ Conversation, and the default. HITL: the human answers for themselves and you ne
 
 **Grills beget grills.** A resolved grill usually raises the next question as a consequence. Add it as a child of the grill that raised it - `--parent` is that grill, not the map - so the tree records what led to what. Encouraged, not the exception.
 
-**A word you had to pin down is a `term`.** Write it with `wfr.py term` as that grill resolves, not at the round close - a resolve body explaining what a word means here is a definition in the wrong place. The tell is disambiguation: you asked which sense was meant, or the human corrected your usage.
+**A word you had to pin down is a `term`.** Write it with `wfr.py term` as that grill resolves, not at the round close - a resolve body explaining what a word means here is a definition in the wrong place. The tell is disambiguation: you asked which sense was meant, the human corrected your usage, or you had to look the word up before you could ask about it.
 
 **A format you had to pin down takes an example.** The glossary holds none of it - a shape is implementation detail - so one literal instance goes in the resolve body as that grill resolves: a code block representing the data type. Structs, keys, the works. The tell is an ambiguous format decision: "Let's use JSON," "XML it is", the keys listed in prose, the nesting and the types left to whoever writes the code. You *must* write the code block down in the tracker for the user's review.
 
 #### research
 
-A fact from outside this directory that a decision waits on.
+A fact a decision waits on: from outside this directory, or from inside it when establishing it took more than one command. A fact you established yourself files the same way as step 4, `--issue` on the question it served.
 AFK - it never holds up a round because it runs parallel.
 
 1. `add` the `research` issue, parented to the `map` or the `grill` that originates it, and write its body then and there (`--body -`). **A research issue is never bodyless**: the body is the brief - the fact wanted, the decision waiting on it, what counts as an answer - and step 3's prompt is cut from it.
@@ -90,14 +92,14 @@ Manual work gating a decision: provisioning, access, moving data so its shape ca
 
 ### The round
 
-Per [grilling](reference/grilling.md): the frontier in one round, each question numbered with your `➡️` under it, then wait.
+Per [grilling](reference/grilling.md): the frontier in one round, in its round format, then wait.
 
 **Every question is an issue**: a whole round, one follow-up, an aside you thought of mid-answer.
 
 **Write the question** before you ask it:
 1. `add` every question in the round, each with its body (`--body -`) - the framing you would otherwise type under it in the chat
 2. write each one's `option` rows and your `recommend`
-3. only then, put the round in the chat, as prose you type.
+3. only then, type the round into the chat in [grilling](reference/grilling.md)'s round format, `❓ **Q1**` onward, every round.
 
 Ask first and write up after and you are transcribing a view: what reaches the file is the compressed version, options and steer and the human's reasoning gone.
 
@@ -116,20 +118,21 @@ Ask first and write up after and you are transcribing a view: what reaches the f
 **An invalidated round is closed, never deleted.** Judge each issue alone: a failed premise voids some and leaves others standing. Not yet resolved - `resolve` it with the failed premise as its gist, so the next session does not re-ask it. Already resolved - the correction resolves `--supersedes` the old one. Either way the corrected question is a child of what it corrects.
 
 **Close the round before you open the next.** Answers land, then in one pass:
-1. `resolve` each answered issue, subject and body
-2. move the map body - fog those answers lifted comes off "Not yet specified", fog they revealed goes on, decisions worth keeping go to Notes; retitle an ADR as it resolves per [ADR format](reference/domain-modeling_adr-format.md)
-3. `block` what the answers gated
-4. only then take `wfr.py frontier FILE` for the next round.
+1. `research --from` each fact this round's answers rest on that is not yet in `/r/`
+2. `resolve` each answered issue, subject and body, linking the `/r/ID` it rests on
+3. move the map body - fog those answers lifted comes off "Not yet specified", fog they revealed goes on, decisions worth keeping go to Notes; retitle an ADR as it resolves per [ADR format](reference/domain-modeling_adr-format.md)
+4. `block` what the answers gated
+5. only then take `wfr.py frontier FILE` for the next round.
 
-A round that ends at step 1 leaves the map describing the effort as it was before you asked.
+A round that ends at step 2 leaves the map describing the effort as it was before you asked.
 
 ### Claiming and stopping
 
-**The human is the lock; never claim a grill.** Claim `research`, `task` and `impl`; leave `grilling` and `prototype` unclaimed. A claim makes a second session skip work under way: a real race for `research` and `impl`, and none at all for HITL, where one human answers in one conversation and `resolve` never needed a claim anyway.
+**The human is the lock; never claim a grill.** Claim `research`, `task`, `prototype` and `impl`; leave `grilling` unclaimed. A claim makes a second session skip work under way: a real race for anything an agent builds or a human is reviewing, and none at all for a grill, where one human answers in one conversation and `resolve` never needed a claim anyway.
 
 **One round a session or many, and stop after any of them.** Stopping is free: the file holds the state, which is what it is for. Close the round and the recomputed frontier is already the next round.
 
-**Before you stop:** release any `research`, `task` or `impl` you claimed and did not finish. Do it as the *work* ends rather than as the session ends - an abrupt stop leaves no turn to tidy up. Then `wfr.py map FILE`: every question you asked is on it, every answer in a gist or a body, and the chart matching the tree - no fog the tree has already lifted. What lives only in the chat dies with it.
+**Before you stop:** release any `research`, `task`, `prototype` or `impl` you claimed and did not finish. Do it as the *work* ends rather than as the session ends - an abrupt stop leaves no turn to tidy up. Then `wfr.py map FILE`: every question you asked is on it, every answer in a gist or a body, and the chart matching the tree - no fog the tree has already lifted. Then `wfr.py research FILE` and `wfr.py term FILE`: every fact a decision rested on, and every word you had to learn, is there. What lives only in the chat dies with it.
 
 ## 2. Spec
 
