@@ -34,6 +34,10 @@ EOF
 
 Release the claim in the next call, once the resolve has echoed its byte count back.
 
+### Follow-up
+
+User feedback on a resolved ticket — a correction, a new requirement surfaced by seeing the actual thing — becomes a child of that ticket, kinded by what the work is (`impl`, `grilling`, `research`). Ticket it on sight; the user typing a correction is the brief. Non-actionable notes go as `comment`.
+
 ## Review
 
 When a `review` ticket is on the frontier: claim it, then follow [code-review](code-review.md).
