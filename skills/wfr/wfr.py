@@ -13,7 +13,7 @@ from urllib.parse import quote, unquote
 PROG = os.path.basename(sys.argv[0]) or 'wfr.py'
 VERDICTS = ('accepted', 'rejected')
 
-KINDS = ('map', 'grilling', 'research', 'prototype', 'task', 'spec', 'impl')
+KINDS = ('map', 'grilling', 'research', 'prototype', 'task', 'spec', 'impl', 'review')
 BOARD_WORDS = 25
 DECISIONS, OUT_OF_SCOPE = 'Decisions so far', 'Out of scope'
 
