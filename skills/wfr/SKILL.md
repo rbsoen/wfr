@@ -132,7 +132,7 @@ A round that ends at step 2 leaves the map describing the effort as it was befor
 
 ### Claiming and stopping
 
-**The human is the lock; never claim a grill.** Claim `research`, `task`, `prototype` and `impl`; leave `grilling` unclaimed. A claim makes a second session skip work under way: a real race for anything an agent builds or a human is reviewing, and none at all for a grill, where one human answers in one conversation and `resolve` never needed a claim anyway.
+**The human is the lock; never claim a grill.** Claim `research`, `task`, `prototype`, `impl`, and `review`; leave `grilling` unclaimed. A claim makes a second session skip work under way: a real race for anything an agent builds or a human is reviewing, and none at all for a grill, where one human answers in one conversation and `resolve` never needed a claim anyway.
 
 **One round a session or many, and stop after any of them.** Stopping is free: the file holds the state, which is what it is for. Close the round and the recomputed frontier is already the next round.
 
