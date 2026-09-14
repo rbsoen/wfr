@@ -111,30 +111,30 @@ code lives in the file's own folder, and either can be written back out to
 disk whenever a session wants real files.
 
 LANGUAGE
-  Issue      One item on the tracker. Always "issue", never "ticket".
-  Root       Issue #1, what the effort is about: a map when wayfinder charts a
+  Ticket     One item on the tracker. Always "ticket", never "issue".
+  Root       Ticket #1, what the effort is about: a map when wayfinder charts a
              route, a spec when the work arrived as one. Any kind may be root.
              Never on the frontier, never resolved - close it with:
                set FILE 1 status closed
   Map        A kind=map root. An index, not a store: it gists each decision and
-             points at the issue holding the detail. A tracker has at most one,
+             points at the ticket holding the detail. A tracker has at most one,
              and a tracker started from a spec has none.
-  Kind       What an issue is, from a fixed set. A typo is rejected at write
+  Kind       What a ticket is, from a fixed set. A typo is rejected at write
              time, not silently dropped off a report:
                map grilling research prototype task spec impl
   Blocking   "A is blocked by B" - B must close before A can be worked.
   Frontier   Open, unclaimed, every blocker closed, not the root. The edge of
              the known: what a session may take right now.
   Claim      A non-empty assignee. Set it FIRST, before any work, so concurrent
-             sessions skip the issue. Release with: claim FILE ID ""
+             sessions skip the ticket. Release with: claim FILE ID ""
   Gist       The one-line summary of a resolution. It is the subject line of
              the answer, and it lands on the map when the tracker has one.
-  Fog        In-scope work not yet sharp enough to be an issue. Prose under the
-             map's "Not yet specified". Graduates into issues; never an issue.
+  Fog        In-scope work not yet sharp enough to be a ticket. Prose under the
+             map's "Not yet specified". Graduates into tickets; never a ticket.
   Out of     Work past the destination. Closed, one line on the map, never
   scope      graduates. Not a step on the route, so it is kept off Decisions.
   Option     One way a question could be answered. A row on the question, not
-             an issue: never work, never on the frontier, never on the map,
+             a ticket: never work, never on the frontier, never on the map,
              never blocking, and it has no verdict of its own.
   Recommend  The agent's steer on a question - which option it leans to and
              why. One per question, written when the question is asked.
@@ -143,7 +143,7 @@ LANGUAGE
              time, unlike options, which compete at once.
   Term       One glossary entry: a name, what it IS in a sentence or two,
              and the words it replaces. Keyed on the name, case-blind.
-  ADR        A closed issue marked as worth publishing as a decision record.
+  ADR        A closed ticket marked as worth publishing as a decision record.
              Not a separate store: a flag and a rendering.
 
 OPERATIONS
@@ -155,7 +155,7 @@ OPERATIONS
                                         --kind defaults to map
   wfr.py map FILE                       the whole tree (once per session)
   wfr.py frontier FILE                  what is takeable now
-  wfr.py show FILE ID                   one issue, its edges and its comments
+  wfr.py show FILE ID                   one ticket, its edges and its comments
   wfr.py add FILE --kind K --title "..." --parent N [--body -]
   wfr.py set FILE ID key value [key value ...]
                                         keys: title kind status assignee body
@@ -167,20 +167,20 @@ OPERATIONS
   wfr.py comment FILE ID < notes.md     append a comment (research notes too)
   wfr.py resolve FILE ID [--oos] [--picked N] [--supersedes M] [--adr]
                         < answer.md
-  wfr.py option FILE ISSUE [--add "..." [--body -]] [--rm N]
-  wfr.py recommend FILE ISSUE [--option N] < why.md
+  wfr.py option FILE TICKET [--add "..." [--body -]] [--rm N]
+  wfr.py recommend FILE TICKET [--option N] < why.md
   wfr.py gist FILE ID ["..."] [--oos|--decision]
-                                        rewrite a closed issue's map line
+                                        rewrite a closed ticket's map line
   wfr.py term FILE [NAME] [--def "..."] [--avoid "..."] [--group G]
-                    [--issue N] [--rm]  the glossary
+                    [--ticket N] [--rm]  the glossary
   wfr.py adr FILE [ID] [--no]           mark a decision worth publishing
-  wfr.py research FILE [ID] [--title "..."] [--issue N ...]
+  wfr.py research FILE [ID] [--title "..."] [--ticket N ...]
                         [--from PATH.md|--body -]     the research store
-  wfr.py put FILE PATH [--issue N ...] < code   write (or replace) one file
+  wfr.py put FILE PATH [--ticket N ...] < code   write (or replace) one file
   wfr.py cat FILE PATH                  print one prototype file
   wfr.py ls FILE [PREFIX]               list the prototype folder
   wfr.py rm FILE PATH                   drop one prototype file
-  wfr.py import FILE DIR [--as P] [--issue N ...]  slurp a real directory in
+  wfr.py import FILE DIR [--as P] [--ticket N ...]  slurp a real directory in
   wfr.py export FILE DIR                write everything back out to disk:
                                         DIR/issues, DIR/research, DIR/proto,
                                         and, in the layout a repo expects,
@@ -203,11 +203,11 @@ RESOLVING
       <blank>
       The body, becomes the resolution comment.
 
-  The subject is stored once, as the issue's gist; the body holds only what
+  The subject is stored once, as the ticket's gist; the body holds only what
   the subject does not say. The map, show and the ADR all compose the two, so
   a restated subject is a second copy, and the copy is what rots.
 
-  One resolve is one transaction: it posts the comment, closes the issue and
+  One resolve is one transaction: it posts the comment, closes the ticket and
   writes the gist to the map. It cannot half-resolve. A one-line answer is
   valid and leaves no comment. With no map the gist has nowhere to land, so
   it is skipped and the rest still happens.
@@ -215,12 +215,12 @@ RESOLVING
       wfr.py resolve FILE 4 < answer.md          -> map "%s"
       wfr.py resolve FILE 4 --oos < why.md       -> map "%s"
 
-  --oos is for an issue that sits past the destination: different section,
+  --oos is for a ticket that sits past the destination: different section,
   deliberately not a decision.
 
 OPTIONS AND RECOMMENDATIONS
   A grilling round has a shape: a question, the ways it could be answered,
-  and the agent's steer. The question is the issue. The options are rows on
+  and the agent's steer. The question is the ticket. The options are rows on
   it, and the steer is one recommendation on it.
 
       wfr.py option FILE 2 --add "Personal calendar only"
@@ -235,7 +235,7 @@ OPTIONS AND RECOMMENDATIONS
 
   Only the question resolves, and its gist is the answer - which in practice
   is often none of the options exactly ("(b), but not for the reason given").
-  That answer, and why the others lost, is the resolution on the issue. A
+  That answer, and why the others lost, is the resolution on the ticket. A
   human choosing differently from the recommendation is not recommending:
   that reasoning is the resolution, or a comment.
 
@@ -250,9 +250,9 @@ OPTIONS AND RECOMMENDATIONS
   recommendation differ, the steer was overruled - that pair is the one worth
   reading.
 
-  An ADR's Considered Options lists the option titles and links the issue
+  An ADR's Considered Options lists the option titles and links the ticket
   once. It does not repeat which one was taken or why the rest were not: that
-  is settled on the issue, and saying it twice is how the two copies drift.
+  is settled on the ticket, and saying it twice is how the two copies drift.
 
 REVISING A DECISION
   The map is current state, not a log. A changed decision is rewritten where
@@ -263,17 +263,17 @@ REVISING A DECISION
       wfr.py gist FILE 7 --decision        and back
 
   Text is optional: with it the summary changes, without it only the
-  section. At most one line per closed issue, keyed by its own /i/N link, so
+  section. At most one line per closed ticket, keyed by its own /i/N link, so
   gist finds it wherever it sits.
 
   The two owned sections belong to resolve and gist; a body rewrite that
   races either drops a decision, so round-trip them unchanged and rewrite
-  the fog and the Notes freely. To change a line use gist; to rule an issue
+  the fog and the Notes freely. To change a line use gist; to rule a ticket
   out of scope use resolve --oos.
 
-  What changed and why goes on the issue as a further comment. The map issue
+  What changed and why goes on the ticket as a further comment. The map ticket
   accepts comments too, but the map is an index - keep the argument on the
-  issue holding the decision.
+  ticket holding the decision.
 
 SUPERSEDING
   Not out-of-scope, which is work past the destination. Superseded means a
@@ -286,9 +286,9 @@ SUPERSEDING
   comment: the reasoning that was true then is still on it.
 
 DECISION RECORDS
-  An ADR is not a separate artifact: it is a closed issue worth publishing.
-  The comments are the argument, and the issue's options are the Considered
-  Options. The issue's own title stays the question it always was - an ADR
+  An ADR is not a separate artifact: it is a closed ticket worth publishing.
+  The comments are the argument, and the ticket's options are the Considered
+  Options. The ticket's own title stays the question it always was - an ADR
   needs its own title, required at the point of marking, stating the
   decision on its own terms rather than in answer to the question.
 
@@ -302,7 +302,7 @@ DECISION RECORDS
   become ADRs by being remembered later.
 
   The number is assigned once, highest so far plus one, and never moves:
-  marking an older issue later renumbers nothing already published, and
+  marking an older ticket later renumbers nothing already published, and
   unmarking leaves a gap rather than reusing a number. Status names a
   successor by ADR number.
 
@@ -317,7 +317,7 @@ GLOSSARY
 
   A definition says what a thing IS, in one or two sentences. No
   implementation detail and no rationale - if it contains "because", that
-  belongs on the issue, and --issue N is the link that points there.
+  belongs on the ticket, and --ticket N is the link that points there.
 
 RESEARCH
   A whole markdown artifact kept as text, numbered r1, r2 ... read at /r/2.
@@ -328,23 +328,23 @@ RESEARCH
 THE PROTOTYPE FOLDER
   A virtual folder inside the .wf: paths, no directories of its own. Nothing
   on disk, so a prototype survives a cleaned worktree. rm drops scratch code,
-  never an issue.
+  never a ticket.
 
-CROSS-ISSUE LINKS
-  --issue takes every issue an artifact serves: first is primary, the rest
+CROSS-TICKET LINKS
+  --ticket takes every ticket an artifact serves: first is primary, the rest
   secondary (shown "also"), and the list replaces what was there.
 
-      wfr.py research FILE 2 --issue 7 3 9   primary #7, also #3 and #9
-      wfr.py research FILE 2 --issue 0       linked to nothing
+      wfr.py research FILE 2 --ticket 7 3 9   primary #7, also #3 and #9
+      wfr.py research FILE 2 --ticket 0       linked to nothing
 
-  Links are only what --issue says - a "#3" in prose is a heading, in code a
+  Links are only what --ticket says - a "#3" in prose is a heading, in code a
   comment. Dropping a prototype file drops its links with it.
 
       for m in research/*.md; do wfr.py research FILE --from "$m"; done
 
 BROWSING
   serve has five tabs, with breadcrumbs under them:
-      /       Issues       the whole tree
+      /       Tickets       the whole tree
       /g/     Glossary     the glossary
       /a/     Decisions    the ADRs, /a/N for one
       /r/     Research     the research store, /r/ID for one
@@ -354,19 +354,19 @@ GOTCHAS
   - A heredoc goes alone in its shell call, or a second command in the call
     takes the redirect. set ID status closed is refused on a gistless child:
     resolve is what closes it, comment and map line included.
-  - Claim before working, or two sessions do the same issue.
-  - A dead session leaves an issue claimed forever, invisible to the frontier.
+  - Claim before working, or two sessions do the same ticket.
+  - A dead session leaves a ticket claimed forever, invisible to the frontier.
     Release it: claim FILE ID ""
   - wfr owns two map headings, "%s" and "%s". set refuses a body that alters
     either - round-trip them unchanged and edit the fog and the Notes.
-  - Nothing is deleted. An issue ruled out of scope is closed, not removed.
+  - Nothing is deleted. A ticket ruled out of scope is closed, not removed.
   - A question that must wait for another question is not an option row on
     it; it still needs: block FILE THIS --on THAT
   - If you can say in prose that one question gates another, WIRE IT. A
     dependency argued in a body and not blocked is a claim the tracker
     cannot see, so a second session takes the gated question first and
     answers it without the thing it depended on.
-  - A block that would close a cycle is refused: every issue on it would
+  - A block that would close a cycle is refused: every ticket on it would
     leave the frontier for good, and nothing would say why.
 """ % (DECISIONS, OUT_OF_SCOPE, OUT_OF_SCOPE, DECISIONS, OUT_OF_SCOPE)
 
@@ -2487,7 +2487,7 @@ def cmd_selftest(_):
         run(['add', f, '--kind', 'research', '--title', 'What does X do', '--parent', '1'])
         art = os.path.join(d, 'artifact.md')
         open(art, 'w').write('# How X actually works\n\nIt caches.\n')
-        run(['research', f, '--from', art, '--issue', '6'])
+        run(['research', f, '--from', art, '--ticket', '6'])
         doc = db.execute('SELECT * FROM research WHERE id=1').fetchone()
         ck(doc['title'] == 'How X actually works',
            'research --from takes the title from the "# heading"')
@@ -2496,16 +2496,16 @@ def cmd_selftest(_):
         run(['research', f, '--title', 'Loose note'], stdin='no issue here\n')
         ck(db.execute('SELECT count(*) c FROM research').fetchone()['c'] == 2,
            'a doc need not be linked to an issue')
-        run(['research', f, '2', '--issue', '6'])
+        run(['research', f, '2', '--ticket', '6'])
         ck(db.execute('SELECT issue FROM research WHERE id=2').fetchone()[0] == 6,
            'an id with a flag updates in place')
         ck(db.execute('SELECT body FROM research WHERE id=2').fetchone()[0] == 'no issue here\n',
            'updating the link leaves the body alone')
-        run(['research', f, '2', '--issue', '0'])
+        run(['research', f, '2', '--ticket', '0'])
         ck(db.execute('SELECT issue FROM research WHERE id=2').fetchone()[0] is None,
            '--issue 0 unlinks')
         try:
-            run(['research', f, '--title', 'Bad link', '--from', art, '--issue', '99'])
+            run(['research', f, '--title', 'Bad link', '--from', art, '--ticket', '99'])
             ck(False, 'a doc cannot name an issue that does not exist')
         except SystemExit:
             ck(True, 'a doc cannot name an issue that does not exist')
@@ -2528,7 +2528,7 @@ def cmd_selftest(_):
            'a research doc is never a file in the prototype folder')
 
         # --- one artifact, several issues --------------------------------
-        run(['research', f, '1', '--issue', '6', '2', '3'])
+        run(['research', f, '1', '--ticket', '6', '2', '3'])
         ck(db.execute('SELECT issue FROM research WHERE id=1').fetchone()[0] == 6,
            'the first --issue is the primary')
         ck(issues_of(db, 'doc', 1, 6) == [6, 2, 3], 'the rest are secondary, primary first')
@@ -2540,22 +2540,22 @@ def cmd_selftest(_):
            'the issue page marks a secondary link and leaves a primary unmarked')
         ck('also <a href="/i/2">#2</a> <a href="/i/3">#3</a>' in view_doc(db, 1),
            'the doc names every issue it serves')
-        run(['research', f, '1', '--issue', '6', '6', '2'])
+        run(['research', f, '1', '--ticket', '6', '6', '2'])
         ck(issues_of(db, 'doc', 1, 6) == [6, 2], 'a repeated issue is not linked twice')
         try:
-            run(['research', f, '1', '--issue', '6', '99'])
+            run(['research', f, '1', '--ticket', '6', '99'])
             ck(False, 'one bad id rejects the whole link list')
         except SystemExit:
             ck(issues_of(db, 'doc', 1, 6) == [6, 2],
                'one bad id rejects the whole link list, changing nothing')
-        run(['research', f, '1', '--issue', '0'])
+        run(['research', f, '1', '--ticket', '0'])
         ck(issues_of(db, 'doc', 1, None) == [] and
            db.execute('SELECT count(*) c FROM link WHERE doc=1').fetchone()['c'] == 0,
            '--issue 0 clears the primary and the secondaries together')
-        run(['research', f, '1', '--issue', '6'])
+        run(['research', f, '1', '--ticket', '6'])
 
         # --- the prototype folder ----------------------------------------
-        run(['put', f, 'demo/main.py', '--issue', '6'], stdin='print("hi")\n')
+        run(['put', f, 'demo/main.py', '--ticket', '6'], stdin='print("hi")\n')
         run(['put', f, 'demo/lib/util.py'], stdin='X = 1\n')
         run(['put', f, 'notes.txt'], stdin='scratch\n')
         ck(db.execute('SELECT count(*) c FROM proto').fetchone()['c'] == 3,
@@ -2595,7 +2595,7 @@ def cmd_selftest(_):
            'file bodies are escaped, never executed')
         db.execute("DELETE FROM proto WHERE path='x.html'")
 
-        run(['put', f, 'demo/main.py', '--issue', '6', '2'], stdin='print("hi")\n')
+        run(['put', f, 'demo/main.py', '--ticket', '6', '2'], stdin='print("hi")\n')
         ck(issues_of(db, 'path', 'demo/main.py', 6) == [6, 2],
            'a prototype file spans issues the same way')
         ck([p for p, _ in refs(db, 2)[1]] == ['demo/main.py'],
@@ -2603,10 +2603,10 @@ def cmd_selftest(_):
         fh = view_proto(db, 'demo/main.py')
         ck('<span class="ilinks">' in fh and 'class="raw"' in fh,
            'the file header keeps its issue links and its raw link apart')
-        run(['put', f, 'demo/main.py', '--issue', '6'], stdin='print("hi")\n')
+        run(['put', f, 'demo/main.py', '--ticket', '6'], stdin='print("hi")\n')
         ck(issues_of(db, 'path', 'demo/main.py', 6) == [6],
            'a shorter --issue list replaces the old one rather than adding to it')
-        run(['put', f, 'gone.py', '--issue', '6', '2'], stdin='x\n')
+        run(['put', f, 'gone.py', '--ticket', '6', '2'], stdin='x\n')
         run(['rm', f, 'gone.py'])
         ck(db.execute("SELECT count(*) c FROM link WHERE path='gone.py'").fetchone()['c'] == 0,
            'dropping a file drops its links with it, leaving none dangling')
@@ -2881,7 +2881,7 @@ def cmd_selftest(_):
 
         # --- glossary --------------------------------------------------------
         run(['term', h, 'Order', '--def', 'A customer request for goods.',
-             '--avoid', 'purchase, transaction', '--issue', '2'])
+             '--avoid', 'purchase, transaction', '--ticket', '2'])
         ck(term_row(dbh, 'order')['name'] == 'Order',
            'a term is keyed case-blind: "order" finds "Order"')
         ck(term_row(dbh, 'Order')['issue'] == 2,
@@ -3067,21 +3067,21 @@ def main(argv=None):
     p = P('show'); p.add_argument('id', type=int)
     p = P('term'); p.add_argument('name', nargs='?')
     p.add_argument('--def', dest='definition'); p.add_argument('--avoid')
-    p.add_argument('--group'); p.add_argument('--issue', type=int)
+    p.add_argument('--group'); p.add_argument('--ticket', type=int, dest='issue')
     p.add_argument('--rm', action='store_true')
     p = P('adr'); p.add_argument('id', type=int, nargs='?')
     p.add_argument('--no', action='store_true')
     p.add_argument('--title', metavar='TITLE', default='')
     P('map'); P('frontier')
     p = P('research'); p.add_argument('id', type=int, nargs='?')
-    p.add_argument('--title'); p.add_argument('--issue', type=int, nargs='+')
+    p.add_argument('--title'); p.add_argument('--ticket', type=int, nargs='+', dest='issue')
     p.add_argument('--from', dest='frm', metavar='PATH'); p.add_argument('--body')
-    p = P('put'); p.add_argument('path'); p.add_argument('--issue', type=int, nargs='+')
+    p = P('put'); p.add_argument('path'); p.add_argument('--ticket', type=int, nargs='+', dest='issue')
     p = P('cat'); p.add_argument('path')
     p = P('rm'); p.add_argument('path')
     p = P('ls'); p.add_argument('prefix', nargs='?', default='')
     p = P('import'); p.add_argument('dir'); p.add_argument('--as', dest='prefix', default='')
-    p.add_argument('--issue', type=int, nargs='+')
+    p.add_argument('--ticket', type=int, nargs='+', dest='issue')
     p = P('export'); p.add_argument('dir')
     p = P('serve'); p.add_argument('--port', type=int, default=8080)
     sub.add_parser('help'); sub.add_parser('selftest')

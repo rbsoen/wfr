@@ -9,7 +9,7 @@ Format a round like so, one block per question, `---` between them. A question b
 ```
 ❓ **Q1** - **<the question>** (#<id>)
 
-<the issue body, where the question has one>
+<the ticket body, where the question has one>
 
 1. <option>
 2. <option>
@@ -21,10 +21,10 @@ Format a round like so, one block per question, `---` between them. A question b
 ❓ **Q2** - ...
 ```
 
-**The `➡️` is the number alone.** Its reasoning went into that issue's `recommend` body at write-up, so the round carries the steer and the file carries the why. The tell that this slipped is an arrow that grew a dash and a clause after the number.
+**The `➡️` is the number alone** - just `➡️ 2`, the picked option's digit. Its why went into that ticket's `recommend` body at write-up, and stays there: the round points, the file explains.
 
 Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
 
 Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment, dispatch a sub-agent to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.
 
-The session is done when the frontier is empty: every branch of the decision tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
+The session is done when the frontier is empty and every area the destination touches has a question, asked or open: every branch of the decision tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
