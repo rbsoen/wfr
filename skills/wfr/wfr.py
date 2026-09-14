@@ -14,6 +14,7 @@ PROG = os.path.basename(sys.argv[0]) or 'wfr.py'
 VERDICTS = ('accepted', 'rejected')
 
 KINDS = ('map', 'grilling', 'research', 'prototype', 'task', 'spec', 'impl')
+BOARD_WORDS = 25
 DECISIONS, OUT_OF_SCOPE = 'Decisions so far', 'Out of scope'
 
 SCHEMA = """
@@ -86,6 +87,13 @@ CREATE TABLE IF NOT EXISTS option(
   body    TEXT NOT NULL DEFAULT '',
   created TEXT NOT NULL DEFAULT (datetime('now')));
 CREATE INDEX IF NOT EXISTS option_issue ON option(issue);
+CREATE TABLE IF NOT EXISTS board(
+  id      INTEGER PRIMARY KEY,
+  body    TEXT NOT NULL CHECK(body <> ''),
+  ref     TEXT,
+  superseded_by INTEGER REFERENCES board(id),
+  created TEXT NOT NULL DEFAULT (datetime('now')),
+  create_ref TEXT);
 """
 
 ISSUE_COLS = ('id, kind, status, title, body, assignee, verdict, gist, adr_title, adr,'
@@ -104,11 +112,6 @@ MAP_SKELETON = """## Destination
 """ % (DECISIONS, OUT_OF_SCOPE)
 
 HELP = """wfr - the wayfinder tracker: one effort, one SQLite file (a .wf).
-
-Everything an agent needs is here; there is no tracker doc in the repo. The
-file is the only artifact - research notes are posted as comments, prototype
-code lives in the file's own folder, and either can be written back out to
-disk whenever a session wants real files.
 
 LANGUAGE
   Ticket     One item on the tracker. Always "ticket", never "issue".
@@ -147,9 +150,6 @@ LANGUAGE
              Not a separate store: a flag and a rendering.
 
 OPERATIONS
-  Every command and every flag is here; the sections below hold the
-  semantics rather than the surface.
-
   wfr.py init FILE --title "..." [--kind K]
                                         create the file, seed the root as #1;
                                         --kind defaults to map
@@ -164,7 +164,7 @@ OPERATIONS
                                         dependency you can name
   wfr.py unblock FILE ID --on N [N ...]
   wfr.py claim FILE ID [WHO]            WHO defaults to you; "" releases
-  wfr.py comment FILE ID < notes.md     append a comment (research notes too)
+  wfr.py comment FILE ID < notes.md     append a comment
   wfr.py resolve FILE ID [--oos] [--picked N] [--supersedes M] [--adr]
                         < answer.md
   wfr.py option FILE TICKET [--add "..." [--body -]] [--rm N]
@@ -176,6 +176,7 @@ OPERATIONS
   wfr.py adr FILE [ID] [--no]           mark a decision worth publishing
   wfr.py research FILE [ID] [--title "..."] [--ticket N ...]
                         [--from PATH.md|--body -]     the research store
+  wfr.py board FILE [ID] [--add "..."] [--ref X] [--create-ref X] [--supersedes N]
   wfr.py put FILE PATH [--ticket N ...] < code   write (or replace) one file
   wfr.py cat FILE PATH                  print one prototype file
   wfr.py ls FILE [PREFIX]               list the prototype folder
@@ -193,8 +194,8 @@ OPERATIONS
       wfr.py add FILE --kind grilling --title "..." --parent 1 --body - < q.md
   resolve and comment always read stdin, so they need no -.
 
-  term, research, adr and option share one shape: bare lists the store, a
-  NAME or ID alone reads one, and a flag writes.
+  term, research, adr, option and board share one shape: bare lists the
+  store, a NAME or ID alone reads one, and a flag writes.
 
 RESOLVING
   The answer is shaped like a git commit message:
@@ -325,6 +326,14 @@ RESEARCH
   PATH.md, or --body - for stdin). --from takes the title from the doc's own
   "# ..." heading.
 
+BOARD
+  The codebase as sessions left it: current state, not a log. A fact says
+  what, where or how, and why, in at most %d words. --ref holds its argument
+  (a ticket or commit), --create-ref the baseline it held as of (a commit,
+  ticket or time). A changed fact is superseded, never edited.
+
+      wfr.py board FILE --add "..." --ref '#14' --create-ref abc123f --supersedes 3
+
 THE PROTOTYPE FOLDER
   A virtual folder inside the .wf: paths, no directories of its own. Nothing
   on disk, so a prototype survives a cleaned worktree. rm drops scratch code,
@@ -343,22 +352,20 @@ CROSS-TICKET LINKS
       for m in research/*.md; do wfr.py research FILE --from "$m"; done
 
 BROWSING
-  serve has five tabs, with breadcrumbs under them:
+  serve has six tabs, with breadcrumbs under them:
       /       Tickets       the whole tree
       /g/     Glossary     the glossary
       /a/     Decisions    the ADRs, /a/N for one
       /r/     Research     the research store, /r/ID for one
+      /b/     Board        fact cards, superseded ones dimmed
       /p/     Prototypes   file tree left, raw code right; ?raw for plain text
 
 GOTCHAS
   - A heredoc goes alone in its shell call, or a second command in the call
     takes the redirect. set ID status closed is refused on a gistless child:
     resolve is what closes it, comment and map line included.
-  - Claim before working, or two sessions do the same ticket.
   - A dead session leaves a ticket claimed forever, invisible to the frontier.
     Release it: claim FILE ID ""
-  - wfr owns two map headings, "%s" and "%s". set refuses a body that alters
-    either - round-trip them unchanged and edit the fog and the Notes.
   - Nothing is deleted. A ticket ruled out of scope is closed, not removed.
   - A question that must wait for another question is not an option row on
     it; it still needs: block FILE THIS --on THAT
@@ -368,7 +375,7 @@ GOTCHAS
     answers it without the thing it depended on.
   - A block that would close a cycle is refused: every ticket on it would
     leave the frontier for good, and nothing would say why.
-""" % (DECISIONS, OUT_OF_SCOPE, OUT_OF_SCOPE, DECISIONS, OUT_OF_SCOPE)
+""" % (DECISIONS, OUT_OF_SCOPE, OUT_OF_SCOPE, BOARD_WORDS)
 
 
 def die(msg):
@@ -1546,6 +1553,74 @@ def cmd_research(a):
         if r['issue'] else ''))
 
 
+def board_row(db, bid):
+    r = db.execute('SELECT * FROM board WHERE id=?', (bid,)).fetchone()
+    if not r:
+        die('no fact b%s' % bid)
+    return r
+
+
+def board_line(r):
+    return 'b%-3d %s%s%s' % (r['id'], r['body'],
+                             '  see ' + r['ref'] if r['ref'] else '',
+                             '  as of ' + r['create_ref'] if r['create_ref'] else '')
+
+
+def cmd_board(a):
+    """The board. A fact is never edited or deleted: a later one supersedes
+    it, so the list stays current state and the history stays one ID away."""
+    db = connect(a.file)
+    if a.add is None:
+        if a.ref is not None or a.create_ref is not None or a.supersedes is not None:
+            die('--ref, --create-ref and --supersedes go with --add')
+        if a.id is None:
+            rows = db.execute('SELECT * FROM board WHERE superseded_by IS NULL'
+                              ' ORDER BY id').fetchall()
+            if not rows:
+                print('the board is empty. Add a fact with: board FILE --add "..."')
+            for r in rows:
+                print(board_line(r))
+            return
+        r = board_row(db, a.id)
+        print(board_line(r))
+        if r['superseded_by']:
+            print('  superseded by b%d' % r['superseded_by'])
+        # --supersedes takes one fact and a fact is superseded once, so the
+        # history is a chain, never a tree
+        while r:
+            r = db.execute('SELECT * FROM board WHERE superseded_by=?', (r['id'],)).fetchone()
+            if r:
+                print('  was ' + board_line(r))
+        return
+    if a.id is not None:
+        die('--add writes a new fact; to change b%d, --supersedes %d' % (a.id, a.id))
+    text = ' '.join(a.add.split())
+    n = len(text.split())
+    if not n:
+        die('a fact cannot be empty')
+    if n > BOARD_WORDS:
+        die('a fact is at most %d words; this one is %d. Move the argument to '
+            'its --ref, or split it into two facts' % (BOARD_WORDS, n))
+    db.execute('BEGIN IMMEDIATE')          # checked under the lock, or two
+    try:                                   # sessions both supersede one fact
+        if a.supersedes is not None:
+            old = board_row(db, a.supersedes)
+            if old['superseded_by']:
+                die('b%d is already superseded by b%d; supersede that one'
+                    % (old['id'], old['superseded_by']))
+        bid = db.execute('INSERT INTO board(body,ref,create_ref) VALUES(?,?,?)',
+                         (text, a.ref or None, a.create_ref or None)).lastrowid
+        if a.supersedes is not None:
+            db.execute('UPDATE board SET superseded_by=? WHERE id=?', (bid, a.supersedes))
+    except BaseException:
+        if db.in_transaction:
+            db.execute('ROLLBACK')
+        raise
+    db.execute('COMMIT')
+    print(board_line(board_row(db, bid)) +
+          ('  (supersedes b%d)' % a.supersedes if a.supersedes is not None else ''))
+
+
 def cmd_put(a):
     db = connect(a.file)
     p, body = vpath(a.path), read_stdin('put')
@@ -1835,6 +1910,12 @@ white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 padding:4px 10px;font-size:12px;color:var(--dim)}
 .fhead{display:flex;align-items:center;gap:10px}
 .fhead .raw{margin-left:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:8px 0}
+.cards article{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+padding:8px 10px;display:flex;flex-direction:column}
+.cards article p{margin:6px 0;flex:1}
+.cards header,.cards footer{padding:0;border:0;color:var(--dim);font-size:12px}
+.cards article.done{opacity:.55}.cards article:target{border-color:var(--ink)}
 @media(max-width:700px){.split{flex-direction:column;height:auto}
 .tree{width:auto;border-right:none;border-bottom:1px solid var(--line);max-height:32vh}
 .code{max-height:60vh}}
@@ -1842,7 +1923,7 @@ padding:4px 10px;font-size:12px;color:var(--dim)}
 
 
 NAV = (('/', 'Issues'), ('/g/', 'Glossary'), ('/a/', 'Decisions'),
-       ('/r/', 'Research'), ('/p/', 'Prototypes'))
+       ('/r/', 'Research'), ('/b/', 'Board'), ('/p/', 'Prototypes'))
 
 
 def page(title, sub, inner, tab='/', crumbs=(), h1=None):
@@ -2108,6 +2189,33 @@ def view_doc(db, rid):
                 the_root(db)['title'])
 
 
+def fact_ref(ref):
+    """A '#N' is a ticket and links there; a commit or a time is plain text."""
+    m = re.fullmatch(r'#(\d+)', ref)
+    return '<a href="/i/%s">#%s</a>' % (m.group(1), m.group(1)) if m else html.escape(ref)
+
+
+def view_board(db):
+    """Current facts first, then superseded ones dimmed, each pointing at its
+    replacement - the way a superseded ADR is shown."""
+    rows = db.execute('SELECT * FROM board ORDER BY superseded_by IS NOT NULL, id').fetchall()
+    cards = []
+    for r in rows:
+        head = ['b%d' % r['id']] + (['see ' + fact_ref(r['ref'])] if r['ref'] else [])
+        foot = (['as of ' + fact_ref(r['create_ref'])] if r['create_ref'] else []) + \
+               ['created %s' % html.escape(r['created'])]
+        if r['superseded_by']:
+            foot.append('superseded by <a href="#b%d">b%d</a>' % ((r['superseded_by'],) * 2))
+        cards.append('<article id="b%d"%s><header>%s</header><p>%s</p><footer>%s</footer></article>'
+                     % (r['id'], ' class="done"' if r['superseded_by'] else '',
+                        ' · '.join(head), _inline(html.escape(r['body'])), ' · '.join(foot)))
+    n = sum(1 for r in rows if not r['superseded_by'])
+    return page(the_root(db)['title'], '%d current fact%s' % (n, '' if n == 1 else 's'),
+                '<div class="cards">%s</div>' % ''.join(cards) if cards else
+                '<p class="gist">The board is empty: wfr.py board FILE --add "..."</p>',
+                '/b/', [(None, 'Board')], the_root(db)['title'])
+
+
 def view_proto(db, path):
     """Left: the folder at this level, with .. Right: the raw file."""
     path = path.strip('/')
@@ -2182,6 +2290,8 @@ def cmd_serve(a):
                     return self.reply(200, view_research(db))
                 if route in ('/g', '/g/'):
                     return self.reply(200, view_terms(db))
+                if route in ('/b', '/b/'):
+                    return self.reply(200, view_board(db))
                 if route in ('/a', '/a/'):
                     return self.reply(200, view_adrs(db))
                 m = re.fullmatch(r'/a/(\d+)', route)
@@ -2987,7 +3097,7 @@ def cmd_selftest(_):
         db3.commit(); db3.close()
         db3 = connect(old)
         ck(db3.execute("SELECT count(*) c FROM sqlite_master WHERE name IN"
-                       " ('proto','research','term')").fetchone()['c'] == 3,
+                       " ('proto','research','term','board')").fetchone()['c'] == 4,
            'opening an old wfr.py tracker adds its stores in place')
         ck('verdict' in {r[1] for r in db3.execute('PRAGMA table_info(issue)')},
            'and the verdict column, defaulted so an older wfr.py still writes')
@@ -3017,6 +3127,35 @@ def cmd_selftest(_):
         run(['term', g, 'Widget', '--def', 'A widget is a thing.'])
         ck('1 grilling resolved · 1 in the glossary' in frontier_out(),
            'and the count follows the glossary')
+
+        # the board: current state, a changed fact superseded rather than edited
+        b = os.path.join(d, 'board.wf')
+        run(['init', b, '--title', 'Board'])
+        dbb = connect(b)
+        run(['board', b, '--add', 'Modules live in internal/*.', '--ref', '#2',
+             '--create-ref', 'abc123f'])
+        run(['board', b, '--add', 'Modules live in internal/module/*, one package each.',
+             '--ref', 'def456a', '--supersedes', '1'])
+        ck([r['id'] for r in dbb.execute('SELECT id FROM board WHERE superseded_by IS NULL')]
+           == [2], 'a superseded fact leaves the current board')
+        ck(board_row(dbb, 1)['superseded_by'] == 2, 'and points forward at its replacement')
+        count = lambda: dbb.execute('SELECT count(*) c FROM board').fetchone()['c']
+        try:
+            run(['board', b, '--add', 'Another take.', '--supersedes', '1'])
+            ck(False, 'a fact is superseded once')
+        except SystemExit:
+            ck(count() == 2, 'a fact is superseded once')
+        try:
+            run(['board', b, '--add', ' '.join(['word'] * (BOARD_WORDS + 1))])
+            ck(False, 'a fact over the word cap is refused')
+        except SystemExit:
+            ck(count() == 2, 'a fact over the word cap is refused')
+        tab = view_board(dbb)
+        ck(tab.count('<article') == 2 and tab.index('id="b2"') < tab.index('id="b1"'),
+           'the board tab shows current facts before superseded ones')
+        ck('superseded by <a href="#b2">' in tab and 'see <a href="/i/2">#2</a>' in tab,
+           'a superseded card links its replacement, a ticket ref its ticket')
+        dbb.close()
         db.close()
 
     print('\n%s' % ('FAILED: ' + '; '.join(fails) if fails else 'all checks passed'))
@@ -3076,6 +3215,10 @@ def main(argv=None):
     p = P('research'); p.add_argument('id', type=int, nargs='?')
     p.add_argument('--title'); p.add_argument('--ticket', type=int, nargs='+', dest='issue')
     p.add_argument('--from', dest='frm', metavar='PATH'); p.add_argument('--body')
+    p = P('board'); p.add_argument('id', type=int, nargs='?')
+    p.add_argument('--add', metavar='FACT'); p.add_argument('--ref')
+    p.add_argument('--create-ref', dest='create_ref')
+    p.add_argument('--supersedes', type=int, metavar='N')
     p = P('put'); p.add_argument('path'); p.add_argument('--ticket', type=int, nargs='+', dest='issue')
     p = P('cat'); p.add_argument('path')
     p = P('rm'); p.add_argument('path')

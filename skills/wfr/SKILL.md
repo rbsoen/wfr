@@ -53,6 +53,8 @@ Write an item to the `.wf` first, *then* let the user read a view (the chat, a d
 
 **Name the destination first** - it fixes the scope, so every later ticket is judged against it. Follow [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md) to pin down what this effort is finding its way to: a spec to build from, a decision to lock, a change made in place. Then grill again **breadth-first**, fanning across the space rather than deep on one thread, and seed the map body: Destination, Notes, fog under "Not yet specified". Questions the brief names seed the frontier; the breadth pass fills it. If that surfaces no fog there is nothing to chart; say so and stop.
 
+**Seed the board** when the destination lives in a codebase: the facts every impl session would otherwise re-derive - where things live, the unwritten conventions, the gotchas - each with its why, `--create-ref` the commit you read them at.
+
 **Plan, don't do.** Map tickets resolve into decisions, not code. The pull to build is the signal the map is done and the spec is next.
 
 ### Kinds

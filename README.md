@@ -13,6 +13,7 @@ It produces a browsable, single-file SQLite `.wf` database integrating the follo
 3. ADR
 4. Prototypes
 5. Research docs
+6. Board
 
 It consists of `SKILL.md` + additional reference md's (progressive disclosure) + a single `wfr.py` tool.
 
