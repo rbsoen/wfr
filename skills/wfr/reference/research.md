@@ -15,6 +15,6 @@ Its job:
 3. Specifications
 4. First-party APIs
 
-When possible, provide a direct blockquote OR a code citation in the form of `file:line`.
+For every single claim, you MUST provide a direct blockquote OR a code citation in the form of `file:line`.
 
 If the sources you need are not in hand, you may do a web search.
