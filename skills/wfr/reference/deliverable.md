@@ -13,7 +13,7 @@ Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typec
 
 **Bring the board current before you resolve**: every heads-up on a path this diff touched still holds or is superseded, and every surprise you hit that a later session would repeat is a new heads-up, `--ref` this ticket, `--create-ref` this commit. A gap you decided that a later ticket builds on is a fact too.
 
-Resolve each impl ticket with the subject as its gist and the commit reference in the body. Add one `review` child of this impl — `kind=review`, not blocked on anything.
+**Commit the ticket's work to close it** — one commit for the whole ticket; nothing resolves uncommitted, so the ref is real. Resolve each impl ticket with the subject as its gist and that commit's reference in the body — unless a standing rule forbids commits, in which case skip the commit and the body carries no ref. Add one `review` child of this impl — `kind=review`, not blocked on anything.
 
 The body ends in `## Gaps`: one row for **every gap you decided** — the thing, the disposition, and the reason where the disposition does not carry it. The human course-corrects from this table, so a gap left off it is a call they never saw.
 
