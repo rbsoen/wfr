@@ -14,6 +14,8 @@ PROG = os.path.basename(sys.argv[0]) or 'wfr.py'
 VERDICTS = ('accepted', 'rejected')
 
 KINDS = ('map', 'grilling', 'research', 'prototype', 'task', 'spec', 'impl', 'review')
+BADGE = {k: k[0].upper() for k in KINDS}
+BADGE['review'] = 'Rv'  # 'research' owns 'R'
 BOARD_WORDS = 25
 DECISIONS, OUT_OF_SCOPE = 'Decisions so far', 'Out of scope'
 
@@ -124,7 +126,7 @@ LANGUAGE
              and a tracker started from a spec has none.
   Kind       What a ticket is, from a fixed set. A typo is rejected at write
              time, not silently dropped off a report:
-               map grilling research prototype task spec impl
+               map grilling research prototype task spec impl review
   Blocking   "A is blocked by B" - B must close before A can be worked.
   Frontier   Open, unclaimed, every blocker closed, not the root. The edge of
              the known: what a session may take right now.
@@ -1981,7 +1983,7 @@ def view_tree(db):
             '<span class="dot s-%s"></span> <a href="/i/%d"><span class="id">#%d</span> '
             '<span class="k %s" title="%s">%s</span> <span class="t">%s</span></a>%s%s</div></div>'
             % (st, ' done' if st == 'closed' else '', prefix, st, r['id'], r['id'],
-               r['kind'], r['kind'], r['kind'][0].upper(), html.escape(r['title']),
+               r['kind'], r['kind'], BADGE[r['kind']], html.escape(r['title']),
                ' <span class="v v-%s">%s</span>' % (r['verdict'], verdict_label(r))
                if r['verdict'] else '',
                ' <span class="wait">&#9676; %s</span>'
@@ -2588,8 +2590,8 @@ def cmd_selftest(_):
         ck('<span class="k grilling" title="grilling">G</span>' in tv
            and '<span class="k grilling">grilling</span>' in view_issue(db, 2),
            'the tree badges a kind by its initial; the issue page spells it out')
-        ck(len({k[0] for k in KINDS}) == len(KINDS),
-           'initials stay unambiguous: no two kinds share a first letter')
+        ck(len(set(BADGE.values())) == len(KINDS),
+           'badges stay unambiguous: no two kinds share a badge (%s)' % BADGE)
         ck(all('--row-%s:' % st in CSS and '.tr.st-%s{' % st in CSS for st in set(tagged)),
            'every state present has a row colour: %s' % sorted(set(tagged)))
         ck('header .wrap,main{max-width:1100px;margin:0 auto}' in CSS,
@@ -2819,9 +2821,9 @@ def cmd_selftest(_):
         a3 = render_adr(dbh, issue(dbh, 3), 1)
         ck('Weighed on [#3](/i/3):' in a3, 'Considered Options links the issue once')
         v3 = view_issue(dbh, 3)
-        ck('<h2>Options</h2>' in v3 and '<ol>' in v3,
-           'serve renders options as a header and an ordered list')
-        ck('<h2>Recommendation</h2>' in v3 and 'Option 1.' in v3,
+        ck('<h2>Options</h2>' in v3 and '<table>' in v3,
+           'serve renders options as a header and a table')
+        ck('<h2>Recommendation</h2>' in v3 and 'Option 1</strong>.' in v3,
            'and the recommendation as a header, a paragraph, and which item')
         ck(v3.index('<h2>Options</h2>') < v3.index('<div class="cmt">')
            and '<h3>Options</h3>' not in v3,
@@ -2831,7 +2833,7 @@ def cmd_selftest(_):
         run(['set', h, '3', 'body', '-'],
             stdin='The question.\n\n## Options\n\nstale hand-written list\n')
         v3 = view_issue(dbh, 3)
-        ck('stale hand-written list' not in v3 and '<ol>' in v3,
+        ck('stale hand-written list' not in v3 and '<table>' in v3,
            'the written section is replaced by the one built from the options')
         ck('The question.' in v3, 'and the prose around it is left alone')
 
@@ -3002,7 +3004,7 @@ def cmd_selftest(_):
            'the answer is the definition, and what qualifies it sits on its own line')
         ck('<h2>Not yet specified</h2>' in vm,
            'the sections the map does not own stay ordinary markdown')
-        ck('2. **postgres**' in render_item(dbh, issue(dbh, 3)),
+        ck('2 | **postgres**' in render_item(dbh, issue(dbh, 3)),
            'the exported issue carries its options')
 
         # --- glossary --------------------------------------------------------
