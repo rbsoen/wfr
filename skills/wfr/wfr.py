@@ -2314,8 +2314,13 @@ def cmd_serve(a):
                     if qs == 'raw':
                         f = db.execute('SELECT body FROM proto WHERE path=?',
                                        (p.strip('/'),)).fetchone()
-                        return self.reply(200, f['body'], 'text/plain') if f else self.reply(
-                            404, 'no such file\n', 'text/plain')
+                        if f:
+                            mime = 'text/plain'
+                            if p.endswith('.html'):
+                                mime = 'text/html'
+                            self.reply(200, f['body'], mime)
+                        else:
+                            self.reply(404, 'no such file\n', 'text/plain')
                     v = view_proto(db, p)
                     return self.reply(200, v) if v else self.reply(
                         404, page('not found', '', '<p>Nothing at /p/%s.</p>' % html.escape(p)))
