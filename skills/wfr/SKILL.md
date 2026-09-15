@@ -102,7 +102,7 @@ Follow [grilling](reference/grilling.md): the frontier in one round, in its roun
 
 **Write the question** before you ask it:
 1. `add` every question in the round, each with its body (`--body -`) - the framing you would otherwise type under it in the chat
-2. write each one's `option` rows and your `recommend`
+2. write each one's `option` rows - each with its why in `--body`, usually a clause already sitting in the title, split out to here (`--body -` only when the why is the steer's) - and your `recommend`
 3. only then, type the round into the chat in [grilling](reference/grilling.md)'s round format, `❓ **Q1**` onward, every round.
 
 Ask first and write up after and you are transcribing a view: what reaches the file is the compressed version, options and steer and the human's reasoning gone.

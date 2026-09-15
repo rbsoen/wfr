@@ -169,7 +169,7 @@ OPERATIONS
   wfr.py comment FILE ID < notes.md     append a comment
   wfr.py resolve FILE ID [--oos] [--picked N] [--supersedes M] [--adr]
                         < answer.md
-  wfr.py option FILE TICKET [--add "..." [--body -]] [--rm N]
+  wfr.py option FILE TICKET [--add "..." --body "why"|-] [--rm N]
   wfr.py recommend FILE TICKET [--option N] < why.md
   wfr.py gist FILE ID ["..."] [--oos|--decision]
                                         rewrite a closed ticket's map line
@@ -226,10 +226,13 @@ OPTIONS AND RECOMMENDATIONS
   and the agent's steer. The question is the ticket. The options are rows on
   it, and the steer is one recommendation on it.
 
-      wfr.py option FILE 2 --add "Personal calendar only"
+      wfr.py option FILE 2 --add "Personal calendar only" --body "no clash"
       wfr.py option FILE 2 --add "Availability booking" --body -
       wfr.py recommend FILE 2 --option 4 < why.md
       wfr.py option FILE 2                 list them, and the steer
+
+  --body is the why, usually a clause in the title - split out. Use -
+  when the why is the steer's, not stdin.
 
   --parent is required on every add, and it is a real choice: a question that
   another question opened hangs off THAT question, not off the root, so the
@@ -1323,10 +1326,13 @@ def cmd_option(a):
         print('#%d dropped option %d; the number is not reused' % (a.issue, a.rm))
         return
     if a.add:
-        body = read_stdin('option --body') if a.body == '-' else a.body
+        if not a.body:
+            die('an option needs a reason in --body: the why, usually a clause '
+                'already sitting in the title - split it out to here. --body - '
+                'only when the why is the steer\'s, carried in recommend.')
         lab = next_label(db, a.issue)
         db.execute('INSERT INTO option(issue,label,title,body) VALUES(?,?,?,?)',
-                   (a.issue, lab, a.add, body or ''))
+                   (a.issue, lab, a.add, a.body))
         print('#%d option %d: %s' % (a.issue, lab, a.add))
         return
     opts = options(db, a.issue)
@@ -2780,11 +2786,22 @@ def cmd_selftest(_):
         run(['add', h, '--kind', 'grilling', '--title', 'A: which store', '--parent', '1'])
         run(['add', h, '--kind', 'grilling', '--title', 'Q: which store', '--parent', '1'])
         for t in ('sqlite', 'postgres', 'duckdb'):
-            run(['option', h, '3', '--add', t])
+            run(['option', h, '3', '--add', t, '--body', 'because ' + t])
         run(['block', h, '2', '--on', '3'])
         dbh = connect(h)
         ck([o['title'] for o in options(dbh, 3)] == ['sqlite', 'postgres', 'duckdb'],
            'a question owns its options, in the order asked')
+        try:
+            run(['option', h, '3', '--add', 'no reason given'])
+            ck(False, 'an option without a reason is refused')
+        except SystemExit:
+            ck(len(options(dbh, 3)) == 3, 'an option needs a reason in --body')
+        run(['option', h, '3', '--add', 'bare option', '--body', '-'])
+        ck(options(dbh, 3)[-1]['body'] == '-',
+           '--body - stores a literal dash, not stdin: the reason is "none"')
+        ck('| - |' in issue_body(dbh, issue(dbh, 3)),
+           'and the dash lands in the Reason column')
+        run(['option', h, '3', '--rm', '4'])
         ck([o['label'] for o in options(dbh, 3)] == [1, 2, 3],
            'labels are assigned per question, from 1')
         ck([r['id'] for r in dbh.execute(
@@ -2850,7 +2867,7 @@ def cmd_selftest(_):
 
         run(['add', h, '--kind', 'grilling', '--title', 'Scratch', '--parent', '1'])
         for t in ('keep', 'drop', 'also keep'):
-            run(['option', h, '4', '--add', t])
+            run(['option', h, '4', '--add', t, '--body', '-'])
         run(['recommend', h, '4', '--option', '2'], stdin='the one to drop\n')
         run(['option', h, '4', '--rm', '2'])
         ck([o['title'] for o in options(dbh, 4)] == ['keep', 'also keep'],
@@ -2868,8 +2885,8 @@ def cmd_selftest(_):
 
         run(['add', h, '--kind', 'grilling', '--title', 'Landed on one', '--parent', '1'])
         one = newest()
-        run(['option', h, str(one), '--add', 'first'])
-        run(['option', h, str(one), '--add', 'second'])
+        run(['option', h, str(one), '--add', 'first', '--body', '-'])
+        run(['option', h, str(one), '--add', 'second', '--body', '-'])
         try:
             run(['resolve', h, str(one), '--picked', '9'], stdin='nope\n')
             ck(False, '--picked must name an option of that question')
@@ -2886,7 +2903,7 @@ def cmd_selftest(_):
 
         run(['add', h, '--kind', 'grilling', '--title', 'Landed on none', '--parent', '1'])
         none_ = newest()
-        run(['option', h, str(none_), '--add', 'neither this'])
+        run(['option', h, str(none_), '--add', 'neither this', '--body', '-'])
         run(['resolve', h, str(none_), '--picked', '0'],
             stdin='something else entirely\n\nWhy.\n')
         ck(picked_note(issue(dbh, none_)) == 'None of the options.',
