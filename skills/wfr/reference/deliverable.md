@@ -15,7 +15,7 @@ Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typec
 
 Resolve each impl ticket with the subject as its gist and the commit reference in the body. Add one `review` child of this impl — `kind=review`, not blocked on anything.
 
-The body ends in `## Calls`: one numbered line for **every gap you decided** — `Gap:`, the thing, the disposition in bold, then the reason where the disposition does not carry it. The human course-corrects from this list, so a gap left off it is a call they never saw.
+The body ends in `## Gaps`: one row for **every gap you decided** — the thing, the disposition, and the reason where the disposition does not carry it. The human course-corrects from this table, so a gap left off it is a call they never saw.
 
 `resolve` takes that answer on **stdin** and no text argument, and one resolve is the whole
 close: it posts the comment, closes the ticket, lands the gist on the map. So a heredoc, alone
@@ -27,8 +27,12 @@ Subject line, becomes the gist
 
 What was built, the tests that hold it, the commit ref.
 
-## Calls
-1. Gap: spec never said what an empty input shows - **Decided an empty list**, not an error
+## Gaps
+
+| No. | What | Decision | Reason |
+| --- | --- | --- | --- |
+| 1 | Spec never said what an empty input shows | **Decided an empty list** | An empty list is not an error |
+
 EOF
 ```
 
@@ -46,15 +50,19 @@ When a `review` ticket is on the frontier: claim it, then follow [code-review](c
 
 The fixed point is the previous impl ticket's commit ref, off the map; the spec is the `spec` ticket body. The review *is* the two reports: the step closes when both land in the chat.
 
-Resolve the review ticket. The body ends in `## Calls`: one numbered line per finding — the axis (`Standards:`, `Spec:`), the thing, and the severity. No disposition: the human reads the list and decides what to fix.
+Resolve the review ticket. The body ends in `## Calls`: one row per finding — the axis (`Standards:`, `Spec:`), the thing, and the severity. No disposition: the human reads the table and decides what to fix.
 
 ```sh
 wfr.py resolve /abs/path.wf 13 <<'EOF'
 Code review for #12
 
 ## Calls
-1. Standards: duplicated .gitignore line - needs fix
-2. Standards: terse `Plug` struct name - judgement call, matches convention
-3. Spec: DIB grey fill vs. "blank" - needs fix, zero-init/black
+
+| No. | Kind | What | Action |
+| ---- | --- | --- | --- |
+| 1 | Standards | duplicated .gitignore line | needs fix |
+| 2 | Standards | terse `Plug` struct name | judgement call, matches convention |
+| 3 | Spec | DIB grey fill vs. "blank" | needs fix, zero-init/black |
+
 EOF
 ```

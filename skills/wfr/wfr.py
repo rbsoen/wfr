@@ -631,15 +631,26 @@ def issue_body(db, r):
     owned sections written from the tables over whatever was there."""
     body, opts = r['body'], options(db, r['id'])
     if opts:
-        body = replace_section(body, OPTIONS, '\n'.join(
-            '%d. **%s**%s' % (o['label'], o['title'],
-                              ' - ' + o['body'].strip().replace('\n', ' ')
-                              if o['body'].strip() else '')
-            for o in opts))
+        body = replace_section(
+            body,
+            OPTIONS,
+            '\n'.join([
+                '| Opt. | Decision | Reason |',
+                '| --- | --- | --- |'
+            ] + 
+                list('%d | **%s** | % s |' % (
+                    o['label'], o['title'], o['body'].strip().replace('\n', ' ') if o['body'].strip() else ''
+                ) for o in opts)
+        ))
     if r['recommendation'].strip():
         pos = opt_pos(db, r['id'], r['recommends'])
-        body = replace_section(body, RECOMMENDATION, r['recommendation'].strip() +
-                               ('\n\nOption %d.' % pos if pos else ''))
+        body = replace_section(
+            body,
+            RECOMMENDATION, 
+            '%s%s' % (
+                '**Option %d**.\n\n' % pos if pos else '',
+                r['recommendation'].strip()
+            ))
     return body
 
 
