@@ -15,6 +15,8 @@ Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typec
 
 **Commit the ticket's work to close it** — one commit for the whole ticket; nothing resolves uncommitted, so the ref is real. Resolve each impl ticket with the subject as its gist and that commit's reference in the body — unless a standing rule forbids commits, in which case skip the commit and the body carries no ref. Add one `review` child of this impl — `kind=review`, not blocked on anything.
 
+**The body opens with `## What it does`** — the delivered behaviour in prose and pseudo-code (where applicable). It is **intent, not the code**: the human reads it first and can reject the approach outright — a `grilling` child, redo — before opening the diff, so keep it honest to what you meant to build, not polished past it. Under `## Verified`, name the test that holds the slice and paste the one worked example it pins — `input → observed output`, or `before → after` where nothing is shown — the proof it ran; then point at the code as a `symbol` in a path at the commit ref. Never paste the body itself: it reads as live code and goes stale the next time a slice touches those lines, where a symbol at a ref does not.
+
 The body ends in `## Gaps`: one row for **every gap you decided** — the thing, the disposition, and the reason where the disposition does not carry it. The human course-corrects from this table, so a gap left off it is a call they never saw.
 
 `resolve` takes that answer on **stdin** and no text argument, and one resolve is the whole
@@ -25,7 +27,35 @@ in its Bash call - a second command sharing the call takes the redirect with it:
 wfr.py resolve /abs/path.wf 12 <<'EOF'
 Subject line, becomes the gist
 
-What was built, the tests that hold it, the commit ref.
+## What it does
+
+Reads every open ticket, then drops the root (#1), any with an unclosed blocker, and any with a non-empty assignee, and prints the rest oldest-first by id.
+
+    frontier_list = []
+    for t in open tickets:
+        t is root (#1):
+          skip
+        t.assignee set: # claimed
+          skip
+        any blocker open:
+          skip
+        else:
+          add to frontier_list
+    sort frontier_list oldest-first
+    for i in frontier_list:
+      print i
+
+## Verified
+
+`test_frontier` at the frontier-query seam, the three exclusions it pins:
+
+    claimed   #2 open but assigned          → excluded
+    blocked   #4 open, blocked by open #3   → excluded; #3 still listed
+    root      #1 with no blockers           → still excluded
+    
+    worked example  open {1 root, 2 claimed, 3, 4 blocked-by-3}  →  [3]
+
+`frontier()` @ wfr.py #abc123f.
 
 ## Gaps
 
