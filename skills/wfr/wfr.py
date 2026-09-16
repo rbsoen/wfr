@@ -18,6 +18,13 @@ BADGE = {k: k[0].upper() for k in KINDS}
 BADGE['review'] = 'Rv'  # 'research' owns 'R'
 BOARD_WORDS = 25
 DECISIONS, OUT_OF_SCOPE = 'Decisions so far', 'Out of scope'
+# A delivered impl/review owes its structure to the human who reads it: a bare
+# gist closes the ticket but drops the table they course-correct from. resolve
+# hard-requires these headings so the contract cannot be lost to a one-liner.
+REQUIRED_SECTIONS = {
+    'impl': ('## What it does', '## Verified', '## Gaps'),
+    'review': ('## Calls',),
+}
 
 SCHEMA = """
 CREATE TABLE issue(
@@ -1123,6 +1130,10 @@ def cmd_resolve(a):
             'the issue stays the question: add --adr-title "..."')
     if a.adr_title and not a.adr:
         die('--adr-title needs --adr')
+    if a.body is not None and a.body != '-':
+        die('resolve composes the subject and body from stdin, not from --body TEXT; '
+            "pass the whole payload as a heredoc (--body - is optional, to mirror `add`):\n"
+            "    wfr.py resolve %s %d --body - <<'EOF'" % (a.file, a.id))
     text = read_stdin('resolve').strip('\n')
     lines = text.split('\n')
     subject = lines[0].strip()
@@ -1131,6 +1142,15 @@ def cmd_resolve(a):
     if len(lines) > 1 and lines[1].strip():
         die('a subject line must be followed by a blank line, like a commit message')
     body = '\n'.join(lines[2:]).strip()
+    need = () if a.oos else REQUIRED_SECTIONS.get(r['kind'], ())
+    missing = [h for h in need if h not in body]
+    if missing:
+        die('#%d is a %s: its resolution must carry %s — a bare gist drops the table '
+            'the human reads. Compose the whole payload (subject, blank line, then the '
+            "sections) and pipe it as a heredoc:\n"
+            "    wfr.py resolve %s %d --body - <<'EOF'\n"
+            '    <subject>\n\n    %s\n    ...\n    EOF'
+            % (a.id, r['kind'], ', '.join(missing), a.file, a.id, missing[0]))
     heading = OUT_OF_SCOPE if a.oos else DECISIONS
     # Everything below runs under the write lock: the map is read *after*
     # BEGIN IMMEDIATE, or two concurrent resolves each append to the same
@@ -2482,8 +2502,23 @@ def cmd_selftest(_):
         except SystemExit:
             ck(True, 'the root of a mapless tracker cannot be resolved')
 
-        run(['resolve', g, '2'], stdin='Did the thing\n\nDetail.\n')
-        ck(issue(db2, 2)['status'] == 'closed', 'resolve closes a child with no map')
+        # an impl resolution must carry its structure; a bare gist is refused,
+        # and --body TEXT is refused - the payload is the stdin heredoc.
+        try:
+            run(['resolve', g, '2'], stdin='Did the thing\n\nDetail.\n')
+            ck(False, 'a heading-less impl resolve is refused')
+        except SystemExit:
+            ck(True, 'a heading-less impl resolve is refused')
+        try:
+            run(['resolve', g, '2', '--body', 'inline text'])
+            ck(False, 'resolve --body TEXT is refused; the payload is stdin')
+        except SystemExit:
+            ck(True, 'resolve --body TEXT is refused; the payload is stdin')
+        run(['resolve', g, '2', '--body', '-'],
+            stdin='Did the thing\n\n## What it does\nit works\n\n## Verified\n'
+                  '`t` @ x #abc\n\n## Gaps\nnone\n')
+        ck(issue(db2, 2)['status'] == 'closed',
+           'resolve closes a child with no map, and --body - reads stdin like add')
         ck(db2.execute('SELECT count(*) c FROM comment WHERE issue=2').fetchone()['c'] == 1,
            'the comment still lands when there is no map')
         ck(front2() == [3], 'closing a blocker advances the mapless frontier')
@@ -3223,6 +3258,8 @@ def main(argv=None):
     p = P('claim'); p.add_argument('id', type=int); p.add_argument('who', nargs='?')
     p = P('comment'); p.add_argument('id', type=int)
     p = P('resolve'); p.add_argument('id', type=int)
+    p.add_argument('--body', default=None,
+                   help="accepts only '-' (read the payload from stdin), to mirror `add`")
     p.add_argument('--oos', '--out-of-scope', action='store_true', dest='oos')
     p.add_argument('--supersedes', type=int, metavar='M')
     p.add_argument('--picked', type=int, metavar='N', default=None)
