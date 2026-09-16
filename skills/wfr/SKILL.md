@@ -55,6 +55,8 @@ Write an item to the `.wf` first, *then* let the user read a view (the chat, a d
 
 **Seed the board** when the destination lives in a codebase: heads-ups for impl sessions — unwritten conventions, gotchas that bit once — each with its why, `--create-ref` the commit you read them at. Skip what `ls` or `grep` finds in seconds; a heads-up earns its place by saving the next session from a surprise, not from a lookup.
 
+**Shared orientation is a heads-up too.** When every impl ticket will mirror the same reference (a sibling backend, a parallel module) or lean on the same framework primitives, seed it here once: name the reference file and the shape to copy, and list the primitives — the helpers, the walk/cursor API, the label machinery — with where they live. Otherwise each impl re-reads that reference whole, on the one budget that also has to build, and pays it again per ticket. This is the map amortizing what the touch-set can only point at per-slice.
+
 **Plan, don't do.** Map tickets resolve into decisions, not code. The pull to build is the signal the map is done and the spec is next.
 
 ### Kinds
