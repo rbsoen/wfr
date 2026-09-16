@@ -1,13 +1,15 @@
 # Deliverable
 
-Work the impl frontier: `wfr.py frontier FILE`, claim, build.
+Work the impl frontier: `wfr.py frontier FILE`, claim, then **triage before you build** — the ticket's state decides the session's one deliverable:
 
-**A claimed ticket that doesn't fit one context boundary is split, not started** — the same fit-check the ticket was drafted against (≤~3 files, ≤~5 steps, one deliverable, no open-ended search). If exploring the code showed it overruns, `add` the split children, `block` accordingly, release the claim. Building an oversize ticket is what compacts mid-session.
+- **No `## Touch set` in the body** (a ticket drafted before touch-sets) — the touch-set *is* this session's deliverable. Explore, write `## Touch set` into the body with `set`, release the claim, stop. The build is the next session, and it inherits named files at named symbols instead of re-deriving them with no budget left. If orientation alone overruns the window, that is the split signal — you have now explored enough to split well.
+- **Touch-set present but the slice won't fit one context boundary** — `add` the split children, `block` accordingly, release the claim. Same fit-check the ticket was drafted against (≤~3 files, ≤~5 steps, one deliverable). Building an oversize ticket is what compacts mid-session.
+- **A commit for this ticket already exists but it never resolved** (an earlier session hit the wall after committing) — don't rebuild. Compose the resolve from that commit and the ticket's comments, and close as below.
+- **Touch-set present and it fits** — open the named files at the named symbols and build. Searching *past* the touch-set to find where things are means the ticket was mis-sized: stop, split, release.
 
 **Read the board heads-ups first.** `wfr.py board FILE` carries what earlier sessions learned the hard way: unwritten conventions, gotchas, surprises. Check each on a path this ticket touches against its `create_ref` — `git log REF..HEAD -- PATHS` for a commit, `git log --since` for a time, that ticket's resolve commit for a ticket — and supersede any that no longer holds.
 
-Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typecheck and run the touched tests as you go, the full suite once at the end. **Every test you turn green, `comment` it before writing the next** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. The green test is the trigger: a build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve. When a failure proves a board fact wrong, supersede it then, `--ref` this ticket.
-
+Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typecheck and run the touched tests as you go, the full suite once at the end. **Every checkpoint, `comment` it before moving on** — a test you turn green, or a meaningful write with no test to green it (a new module, a config file) — `wfr.py comment FILE N`, one line for what now works or exists and the file(s) you touched. The checkpoint is the trigger: a build that cleared three of them and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve. When a failure proves a board fact wrong, supersede it then, `--ref` this ticket.
 
 **A gap is a thing the build needs decided that the spec never decided.** Sort each one by whether it is hard to reverse:
 

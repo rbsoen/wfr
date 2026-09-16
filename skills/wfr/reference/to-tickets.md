@@ -10,6 +10,8 @@ Work from whatever is already in the conversation context. If a reference (a spe
 
 If not already explored, do so to understand the current state of the code. Ticket titles and descriptions use the project's domain glossary vocabulary, and respect ADRs in the area being touched.
 
+This exploration's product is each slice's **touch set** (below) — the files and symbols it changes. Capture it into the ticket; don't discard it. It is done once here and amortized across every sibling slice, so the impl session opens a map instead of re-deriving one with no budget left to build.
+
 Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
 
 ## 3. Draft vertical slices
@@ -23,13 +25,14 @@ Break the work into **tracer bullet** tickets.
 - Each slice touches ~3 files or fewer and needs no open-ended search
 - Each slice is ~5 steps of work or fewer
 - Each slice results in one deliverable with a checkable done-condition
+- The slice names its **touch set**: the specific files, and the symbols/seams within them it changes
 - Any prefactoring should be done first
 
 </vertical-slice-rules>
 
 Give each ticket its **blocking edges**: the other tickets that must complete before it can start. A ticket with no blockers can start immediately.
 
-If any of these rules fail, **split the slice before proposing it**. These rules ensure that one slice fits one context boundary.
+If any of these rules fail, **split the slice before proposing it**. These rules ensure that one slice fits one context boundary. Can't name the touch set without open-ended search? The slice is too big or the code needs prefactoring first — split or prefactor now, at draft, where the exploration is amortized across every sibling slice, not in the impl session where it competes with the build for the window.
 
 **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change (rename a column, retype a shared symbol) whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand-contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket; green is promised only there.
 
@@ -40,6 +43,7 @@ Present the proposed breakdown as a numbered list. For each ticket, show:
 - **Title**: short descriptive name
 - **Blocked by**: which other tickets (if any) must complete first
 - **What it delivers**: the end-to-end behaviour this ticket makes work
+- **Touch set**: the files and symbols it changes
 
 Ask:
 
@@ -54,6 +58,9 @@ Iterate until approved.
 ```markdown
 ## What to build
 <the end-to-end behaviour, from the user's perspective, not a layer-by-layer list>
+
+## Touch set
+<the files this slice changes, each with the symbols/seams within it — the map the impl session opens instead of searching. Omit only for an all-new file with no existing code to touch.>
 
 ## Acceptance criteria
 1. ...
