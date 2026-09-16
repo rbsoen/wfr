@@ -1,9 +1,9 @@
 # Deliverable
 
-Work the impl frontier: `wfr.py frontier FILE`, claim, then **triage before you build** — the ticket's state decides the session's one deliverable:
+Work the impl frontier: `wfr.py frontier FILE`, then **`claim` and read the `board`** (below). Now **name this session's one deliverable in the chat before you touch code**: a first-touch impl ticket almost always delivers a *touch-set*, not code. The ticket's state picks which of the four you owe — the first two hand the build to a later session (release the claim, stop); the last two close it here:
 
-- **No `## Touch set` in the body** (a ticket drafted before touch-sets) — the touch-set *is* this session's deliverable. Explore, write `## Touch set` into the body with `set`, release the claim, stop. The build is the next session, and it inherits named files at named symbols instead of re-deriving them with no budget left. If orientation alone overruns the window, that is the split signal — you have now explored enough to split well.
-- **Touch-set present but the slice won't fit one context boundary** — `add` the split children, `block` accordingly, release the claim. Same fit-check the ticket was drafted against (≤~3 files, ≤~5 steps, one deliverable). Building an oversize ticket is what compacts mid-session.
+- **No `## Touch set` in the body** (a ticket drafted before touch-sets) — the touch-set *is* this session's deliverable. Explore, then write `## Touch set` into the body with `set`. The build is the next session, and it inherits named files at named symbols instead of re-deriving them with no budget left. If orientation alone overruns the window, that is the split signal — you have now explored enough to split well.
+- **Touch-set present but the slice won't fit one context boundary** — `add` the split children, `block` accordingly. Same fit-check the ticket was drafted against (≤~3 files, ≤~5 steps, one deliverable). Building an oversize ticket is what compacts mid-session.
 - **A commit for this ticket already exists but it never resolved** (an earlier session hit the wall after committing) — don't rebuild. Compose the resolve from that commit and the ticket's comments, and close as below.
 - **Touch-set present and it fits** — read each named file *at* its anchor (grep the symbol, read the window around it), never the whole file when the touch-set already hands you the coordinate; then build. Searching *past* the touch-set to find where things are means the ticket was mis-sized: stop, split, release.
 

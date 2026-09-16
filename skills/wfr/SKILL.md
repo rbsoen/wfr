@@ -164,7 +164,7 @@ Follow [spec](reference/spec.md): check seams with user first, the sections the 
 
 ## 3. Deliverable
 
-The result of executing the `impl` tickets.
+Each impl ticket is triaged before it is built — a touch-set, a split, a resolve, or the build itself.
 
 Follow [deliverable](reference/deliverable.md) when you take an impl ticket off the frontier.
 
