@@ -8,7 +8,7 @@ A `.wf` file represents one effort. It replaces plan docs and piles of `.md` wit
 
 ## Before anything
 
-Run `wfr.py` bare once a session. Don't read the script; *run it*, because its help output *is* the reference. It ought to be in PATH; if not, it is in the skill directory. Offer to place it in the user's PATH as a symlink if not already.
+Run `wfr.py` bare once a session. Don't read the script; *run it*, because its help output *is* the reference — read every single line. It ought to be in PATH; if not, it is in the skill directory. Offer to place it in the user's PATH as a symlink if not already.
 
 Before the first question of a session, Read [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md): the round format, the stop rule and the glossary rules live there.
 
