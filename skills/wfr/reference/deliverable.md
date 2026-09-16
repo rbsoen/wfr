@@ -6,9 +6,8 @@ Work the impl frontier: `wfr.py frontier FILE`, claim, build.
 
 **Read the board heads-ups first.** `wfr.py board FILE` carries what earlier sessions learned the hard way: unwritten conventions, gotchas, surprises. Check each on a path this ticket touches against its `create_ref` — `git log REF..HEAD -- PATHS` for a commit, `git log --since` for a time, that ticket's resolve commit for a ticket — and supersede any that no longer holds.
 
-Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typecheck and run the touched tests as you go, the full suite once at the end. When a failure proves a board fact wrong, supersede it then, `--ref` this ticket.
+Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typecheck and run the touched tests as you go, the full suite once at the end. **Every test you turn green, `comment` it before writing the next** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. The green test is the trigger: a build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve. When a failure proves a board fact wrong, supersede it then, `--ref` this ticket.
 
-**Checkpoint each landed action or acceptance criterion as a `comment` on this ticket** — `wfr.py comment FILE N`, one line for what now works. An interrupted mid-ticket session refreshes from the ticket's comments plus the held claim; the commit still lands once, as a unit, at resolve.
 
 **A gap is a thing the build needs decided that the spec never decided.** Sort each one by whether it is hard to reverse:
 
