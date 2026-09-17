@@ -8,9 +8,13 @@ After claiming:
 
 ## 2. Build
 
-Write its **failing test** and make sure it goes red. A new test that passes on its first run tests nothing. Follow [TDD](tdd.md) at the seams the spec named. Typecheck and run the touched tests as you go, the full suite once at the end.
+Before writing any code, read [TDD](tdd.md); it applies at the seams the spec named. Then, per test:
 
-**Every test you turn green, `comment` it before writing the next** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. A build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve.
+1. Write the **failing test**, run it, and see it go **red** before touching the code under test. A new test that passes on its first run tests nothing.
+2. Make it green. Typecheck and run the touched tests as you go.
+3. **`comment` it before writing the next test** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. A build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve.
+
+Once every test is green, run the full suite once.
 
 When a failure proves a board heads-up wrong: supersede it then, `--ref` this ticket.
 
@@ -28,8 +32,8 @@ When a failure proves a board heads-up wrong: supersede it then, `--ref` this ti
 1. **Commit** the ticket's work — one commit for the whole ticket; nothing resolves uncommitted, so the ref is real. Unless a standing rule forbids commits: skip it, and the body carries no ref.
 2. **Compose the resolve payload** in the shape below — a decision subject, then the three sections. **The subject states the decision, not a description of the files or a status line** ("Tracer bullet working" is a status; the decision is what you built and chose). It becomes the gist.
 3. **Resolve by piping that payload to `resolve` on stdin** — no positional subject, no `--body`, no `--gist`. One heredoc, alone in its Bash call (see below).
-4. **Add the review child** — `add` one `kind=review` child of this impl, not blocked on anything.
-5. **Release the claim**, once the resolve has echoed its byte count back.
+4. **Leave exactly one review child** — if `show` already lists a `kind=review` child of this impl, keep it; otherwise `add` one, not blocked on anything.
+5. **Release the claim** with `wfr.py claim FILE N ""`, once the resolve has echoed its byte count back.
 
 Resolve in a format like this:
 ```sh

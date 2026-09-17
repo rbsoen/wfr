@@ -8,15 +8,13 @@ A `.wf` file represents one effort in a self-contained ticket tracker: a SQLite 
 
 ## First up
 
-Run (not read) `wfr.py` with no arguments, once. All ~270 lines of the output *is* the reference. If not located in the user's PATH, it's in the skill directory.
-
-**The scratchpad** (usually `/tmp/claude-$(id -u)/$(pwd | sed 's:/:-:g')/${CLAUDE_CODE_SESSION_ID}/scratchpad`) is Claude's own session temp dir. Resolve it once and keep the literal path, shell state resets with cwd. Everything this skill makes that is not a ticket (findings, prototype code, exports) *passes through* there on its way into the `.wf` via `research --from` or `put`. **Work that ends its life in the scratchpad was never delivered.** Every subagent you dispatch gets that absolute path in its prompt, and cwd holds the `.wf` alone.
+`wfr.py` run with no arguments prints the reference: all ~270 lines of its output. Run it, once; reading the script is not a substitute. If not located in the user's PATH, it's in the skill directory.
 
 Depending on how this skill is invoked:
 * **Bare**: ask the user what they meant: continuing a `.wf`, charting a new effort, or something else.
-* **No file, and the user states the goal in prose**: you're charting, and any `.wf` you find is irrelevant. `wfr.py init $PWD/<slug>.wf --title "<the effort>"`, state where it landed, then name the goal.
-* **A file named**: `wfr.py map FILE`. Roots hold destination, notes, fog: read them. Then pick up `wfr.py board FILE`, they hold heads-ups and precautions that apply to the entire effort, and `wfr.py research FILE`, the facts already established. A brief given with the file [opens a round](#opening-a-round): its questions are the frontier.
-* **A file and number named**: `wfr.py show FILE NUMBER`, then `wfr.py board FILE`. Follow the instructions for its kind under [Types of ticket](#types-of-ticket), then pick up from there.
+* **No file, and the user states the goal in prose**: you're charting, and any `.wf` you find is irrelevant. `wfr.py` (the reference), then `wfr.py init $PWD/<slug>.wf --title "<the effort>"`, state where it landed, then name the goal.
+* **A file named**: `wfr.py` (the reference), then `wfr.py map FILE`. Roots hold destination, notes, fog: read them. Then pick up `wfr.py board FILE`, they hold heads-ups and precautions that apply to the entire effort, and `wfr.py research FILE`, the facts already established. A brief given with the file [opens a round](#opening-a-round): its questions are the frontier.
+* **A file and number named**: `wfr.py` (the reference), then `wfr.py show FILE NUMBER`, then `wfr.py board FILE`. Follow the instructions for its kind under [Types of ticket](#types-of-ticket), then pick up from there.
 
 Invoking this skill is the user's call that this effort is tracked. Chart it, whatever the subject. **Decision trees are universal**, only a deliverable assumes a codebase.
 
@@ -111,6 +109,8 @@ A round that ends at step 2 leaves the map describing the effort as it was befor
 Either way, the corrected question is a child of what it corrects.
 
 ### Performing research
+
+**The scratchpad** (usually `/tmp/claude-$(id -u)/$(pwd | sed 's:/:-:g')/${CLAUDE_CODE_SESSION_ID}/scratchpad`) is Claude's own session temp dir. Resolve it once and keep the literal path, shell state resets with cwd. Research findings *passes through* there on its way into the `.wf` via `research --from` or `put`. **Work that ends its life in the scratchpad was never delivered.** Every subagent you dispatch gets that absolute path in its prompt, and cwd holds the `.wf` alone.
 
 1. `add` the `research` ticket, parented to the `map` or the `grill` that originates it, and write its body then and there (`--body -`). **A research ticket is never bodyless**: the body is the brief - the fact wanted, the decision waiting on it, what counts as an answer - and step 3's prompt is cut from it.
 2. `wfr.py claim FILE N` **before** you dispatch. A background agent is work under way, and an unclaimed research ticket is one a parallel session takes and redoes.
