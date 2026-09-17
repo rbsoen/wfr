@@ -77,7 +77,7 @@ In one pass:
 
 1. `research --from` each fact this round's answers rest on that is not yet in `/r/`
 2. `resolve` each answered ticket with a subject and body. Linking the `/r/ID` it rests on.
-3. move the map body. fog those answers lifted comes off "Not yet specified", fog they revealed goes on, decisions worth keeping go to Notes; retitle an ADR as it resolves - follow [ADR format](reference/domain-modeling_adr-format.md)
+3. move the map body. fog those answers lifted comes off "Not yet specified", fog they revealed goes on, decisions worth keeping go to Notes; retitle an ADR as it resolves.
 4. `block` what the answers gated
 5. only then take `wfr.py frontier FILE` for the next round.
 
