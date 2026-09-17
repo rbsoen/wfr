@@ -2350,7 +2350,7 @@ def cmd_serve(a):
                         404, page('not found', '', '<p>No research doc r%s.</p>' % m.group(1)))
                 if route == '/p' or route.startswith('/p/'):
                     p = route[3:] if route.startswith('/p/') else ''
-                    if qs == 'raw':
+                    if qs.startswith('raw'):
                         f = db.execute('SELECT body FROM proto WHERE path=?',
                                        (p.strip('/'),)).fetchone()
                         if f:
