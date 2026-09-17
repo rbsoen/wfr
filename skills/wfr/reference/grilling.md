@@ -4,24 +4,7 @@ Interview the user relentlessly until you reach a shared understanding. Map this
 
 Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round, then wait for the user's answers before the next round.
 
-Format a round like so, one block per question, `---` between them. A question body may run to several paragraphs; the options are the last thing before the steer.
-
-```
-❓ **Q1** - **<the question>** (#<id>)
-
-<the ticket body, where the question has one>
-
-1. <option>
-2. <option>
-
-➡️ 2
-
----
-
-❓ **Q2** - ...
-```
-
-**The `➡️` is the number alone** - just `➡️ 2`, the picked option's digit. Its why went into that ticket's `recommend` body at write-up, and stays there: the round points, the file explains.
+Format a round as in the skill's Opening a round.
 
 Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
 

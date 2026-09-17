@@ -1413,6 +1413,9 @@ def cmd_recommend(a):
 def cmd_show(a):
     db = connect(a.file)
     r = issue(db, a.id)
+    if a.body:
+        print(r['body'].rstrip())
+        return
     w = waiting(db, a.id)
     print('#%d  %s  %s' % (r['id'], r['kind'], r['title']))
     print('    %s%s%s%s' % (state(db, r),
@@ -3294,6 +3297,7 @@ def main(argv=None):
     p = P('recommend'); p.add_argument('issue', type=int)
     p.add_argument('--option', type=int, metavar='N')
     p = P('show'); p.add_argument('id', type=int)
+    p.add_argument('--body', action='store_true')
     p = P('term'); p.add_argument('name', nargs='?')
     p.add_argument('--def', dest='definition'); p.add_argument('--avoid')
     p.add_argument('--group'); p.add_argument('--ticket', type=int, dest='issue')

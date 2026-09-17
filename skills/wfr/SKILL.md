@@ -4,7 +4,7 @@ description: Run an effort inside a single `.wf` tracker.
 disallowed-tools: AskUserQuestion
 ---
 
-A `.wf` file represents one effort in a self-contained ticket tracker.
+A `.wf` file represents one effort in a self-contained ticket tracker: a SQLite file, read and written through `wfr.py` alone.
 
 ## First up
 
@@ -15,7 +15,7 @@ Run (not read) `wfr.py` with no arguments, once. All ~270 lines of the output *i
 Depending on how this skill is invoked:
 * **Bare**: ask the user what they meant: continuing a `.wf`, charting a new effort, or something else.
 * **No file, and the user states the goal in prose**: you're charting, and any `.wf` you find is irrelevant. `wfr.py init $PWD/<slug>.wf --title "<the effort>"`, state where it landed, then name the goal.
-* **A file named**: `wfr.py map FILE`. Roots hold destination, notes, fog: read them. Then pick up `wfr.py board FILE`, they hold heads-ups and precautions that apply to the entire effort.
+* **A file named**: `wfr.py map FILE`. Roots hold destination, notes, fog: read them. Then pick up `wfr.py board FILE`, they hold heads-ups and precautions that apply to the entire effort, and `wfr.py research FILE`, the facts already established. A brief given with the file [opens a round](#opening-a-round): its questions are the frontier.
 * **A file and number named**: `wfr.py show FILE NUMBER`, then `wfr.py board FILE`. Follow the instructions for its kind under [Types of ticket](#types-of-ticket), then pick up from there.
 
 Invoking this skill is the user's call that this effort is tracked. Chart it, whatever the subject. **Decision trees are universal**, only a deliverable assumes a codebase.
@@ -40,7 +40,7 @@ A spec in its own `.wf`, or a spec root beside the map, happens **only when the 
 ## Ground rules
 
 1. Write to the `.wf` **first**, then let the user read a view (chat, disk copy, export, subagent report).
-2. Views are **one way**, never round-trip one back into a write. `show` interleaves children and comments together, and using it for `set` results in a broken ticket body.
+2. Views are **one way**. To edit a body, read it with `wfr.py show FILE ID --body`, edit that, and `set FILE ID body -` it back; plain `show` interleaves edges and comments, so its output breaks a body.
 3. Pass only absolute paths to `wfr.py`, because CWD resets between Bash calls.
 4. **The human runs the server, never you.** Write every link as a bare path.
 5. The human is the lock; never claim a grill.
@@ -60,10 +60,28 @@ A spec in its own `.wf`, or a spec root beside the map, happens **only when the 
 
 ### Opening a round
 
-1. `add` every question in the round, each with its body (`--body -`) - the framing you would otherwise type under it in the chat. **The title itself only contains the question**, never the number (e.g. `Q1`).
+1. `add` every question in the round, each with its body (`--body -`) - the framing you would otherwise type under it in the chat. **The title itself only contains the question**, never the number (e.g. `Q1`). **One ticket, one question.** The body frames it; every further question it raises is its own `add`: in this round if it is on the frontier now, otherwise as a child of the question it hangs on.
 2. Write each one's `option` rows, each with its why in `--body`, and your `recommend`. See exceptions below.
-3. Only then, type the round into the chat in [grilling](reference/grilling.md)'s round format.
+3. Only then, type the round into the chat.
 
+Format a round like so, one block per question, `---` between them. A question body may run to several paragraphs; the options are the last thing before the steer.
+
+```
+❓ **Q1** - **<the question>** (#<id>)
+
+<the ticket body, where the question has one>
+
+1. <option>
+2. <option>
+
+➡️ 2
+
+---
+
+❓ **Q2** - ...
+```
+
+**The `➡️` is the number alone** - just `➡️ 2`, the picked option's digit. Its why went into that ticket's `recommend` body at write-up, and stays there: the round points, the file explains.
 
 **A fact only the human holds takes a body, no options, no `recommend` and no `➡️`.** Where they live, what they already own, what happened the last time they did this: unfindable, so ask it bare of options and resolve with `--picked` omitted, which claims nothing.
 
@@ -79,7 +97,7 @@ In one pass:
 2. `resolve` each answered ticket with a subject and body. Linking the `/r/ID` it rests on.
 3. move the map body. fog those answers lifted comes off "Not yet specified", fog they revealed goes on, decisions worth keeping go to Notes; retitle an ADR as it resolves.
 4. `block` what the answers gated
-5. only then take `wfr.py frontier FILE` for the next round.
+5. only then take `wfr.py frontier FILE` for the next round, or run [Before you stop](#before-you-stop) when the frontier holds none.
 
 A round that ends at step 2 leaves the map describing the effort as it was before you asked.
 
@@ -116,9 +134,10 @@ The research file's title comes from the `# ` heading; `--ticket N` hangs it off
 
 ## Drafting the deliverable
 
-1. Add `kind=impl` children of the spec. Follow [to-tickets](reference/to-tickets.md) to draft and quiz the vertical slices.
+1. Add `kind=impl` children of the spec. Follow [to-tickets](reference/to-tickets.md) to draft and quiz the vertical slices. A user who says to skip the quiz skips the quiz alone: the slice rules and step 3 still hold.
 2. **Block each ticket on the sibling tickets it actually depends on**, never the spec itself - parentage already records that it came from there.
 3. **A screen nobody has seen is not a ticket yet.** Where a user will look at the result and no resolved ticket settled how it looks, add a `prototype` child of that ticket.
+4. Run [Before you stop](#before-you-stop).
 
 ## Types of ticket
 
@@ -146,7 +165,7 @@ Manual work gating a decision: provisioning, access, moving data so its shape ca
 
 ### Implementation
 
-Follow [deliverable](reference/deliverable.md). Each resolved impl adds one `review` child. It does not block the next impl, it hits the frontier beside it.
+Follow [deliverable](reference/deliverable.md). **Resolving an impl adds its one `review` child; drafting adds none.** It does not block the next impl, it hits the frontier beside it.
 
 ### Review
 
