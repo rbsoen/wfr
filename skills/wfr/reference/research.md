@@ -16,5 +16,3 @@ Its job:
 4. First-party APIs
 
 For every single claim, you MUST provide a direct blockquote OR a code citation in the form of `file:line`.
-
-If the sources you need are not in hand, you may do a web search.

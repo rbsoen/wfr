@@ -2,17 +2,7 @@
 
 Break a plan, spec, or conversation into **tickets**: tracer-bullet vertical slices, each declaring the tickets that **block** it.
 
-## 1. Gather context
-
-Work from whatever is already in the conversation context. If a reference (a spec path, a ticket number or URL) was passed as an argument, fetch it and read its full body and comments.
-
-## 2. Explore the codebase (optional)
-
-If not already explored, do so to understand the current state of the code. Ticket titles and descriptions use the project's domain glossary vocabulary, and respect ADRs in the area being touched.
-
-Look for opportunities to prefactor the code to make the implementation easier. "Make the change easy, then make the easy change."
-
-## 3. Draft vertical slices
+## Draft vertical slices
 
 Break the work into **tracer bullet** tickets.
 

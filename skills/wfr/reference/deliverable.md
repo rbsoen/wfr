@@ -6,7 +6,7 @@ Work the impl frontier: `wfr.py frontier FILE`, claim, build.
 
 **Read the board heads-ups first.** `wfr.py board FILE` carries what earlier sessions learned the hard way: unwritten conventions, gotchas, surprises. Check each on a path this ticket touches against its `create_ref` — `git log REF..HEAD -- PATHS` for a commit, `git log --since` for a time, that ticket's resolve commit for a ticket — and supersede any that no longer holds.
 
-Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typecheck and run the touched tests as you go, the full suite once at the end. **Every test you turn green, `comment` it before writing the next** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. The green test is the trigger: a build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve. When a failure proves a board fact wrong, supersede it then, `--ref` this ticket.
+Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typecheck and run the touched tests as you go, the full suite once at the end. **Every test you turn green, `comment` it before writing the next** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. The green test is the trigger: a build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve. When a failure proves a board heads-up wrong, supersede it then, `--ref` this ticket.
 
 
 **A gap is a thing the build needs decided that the spec never decided.** Sort each one by whether it is hard to reverse:
@@ -23,7 +23,7 @@ Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typec
 3. **Resolve by piping that payload to `resolve` on stdin** — no positional subject, no `--body`, no `--gist`. One heredoc, alone in its Bash call (see below).
 4. **Add the review child** — `add` one `kind=review` child of this impl, not blocked on anything.
 
-An impl is closed only when all four exist: the commit, the composed resolve, and the review child. Miss the subject shape or the sections and the gist reads as a status note; miss the review child and the review it owes never reaches the frontier.
+An impl is closed only when all four exist. Miss the subject shape or the sections and the gist reads as a status note; miss the review child and the review it owes never reaches the frontier.
 
 **The body opens with `## What it does`** — the delivered behaviour in prose and pseudo-code (where applicable). It is **intent, not the code**: the human reads it first and can reject the approach outright — a `grilling` child, redo — before opening the diff, so keep it honest to what you meant to build, not polished past it. Under `## Verified`, name the test that holds the slice and paste the one worked example it pins — `input → observed output`, or `before → after` where nothing is shown — the proof it ran; then point at the code as a `symbol` in a path at the commit ref. Never paste the body itself: it reads as live code and goes stale the next time a slice touches those lines, where a symbol at a ref does not.
 

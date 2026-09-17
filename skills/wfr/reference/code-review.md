@@ -3,32 +3,13 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 - **Standards**: does the code conform to this repo's documented coding standards?
 - **Spec**: does the code faithfully implement the originating issue / spec?
 
-Both axes run as **blind** sub-agents, in parallel: blind to each other, and blind to whoever wrote the code. Each gets the diff and its own axis material - never the rationale of the change. Then this skill aggregates their findings.
+Both axes run as **blind** sub-agents, in parallel: blind to each other, and blind to whoever wrote the code. Each gets the diff and its own axis material, never the rationale of the change. Then this skill aggregates their findings.
 
-## Process
-
-### 1. Pin the fixed point
-
-Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.
-
-Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
-
-Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside two parallel sub-agents.
-
-### 2. Identify the spec source
-
-Look for the originating spec, in this order:
-
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in `docs/agents/issue-tracker.md`.
-2. A path the user passed as an argument.
-3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
-
-### 3. Identify the standards sources
+## Identify the standards sources
 
 Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
 
-The board's facts from earlier sessions are a standards source too, and each is a judgement call like a baseline smell: a fact can be stale.
+The board's heads-up from earlier sessions are a standards source too, and each is a judgement call like a baseline smell: a fact can be stale.
 
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
 
@@ -50,23 +31,27 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
-### 4. Spawn both blind sub-agents in parallel
+## Spawn both blind sub-agents in parallel
 
 **Standards sub-agent prompt** should include:
 
-- The full diff command and commit list.
-- The list of standards-source files you found in step 3, **plus the smell baseline and the board facts from step 3** pasted in full (the sub-agent has no other access to them).
-- The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); (b) any baseline smell you spot: name it and quote the hunk; and (c) any place the diff contradicts a board fact: cite its ID and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells and board facts are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
+1. The full diff command and commit list.
+2. The list of standards-source files you found in step 3, **plus the smell baseline and the board facts from step 3** pasted in full (the sub-agent has no other access to them).
+3. The brief:
+```
+Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); (b) any baseline smell you spot: name it and quote the hunk; and (c) any place the diff contradicts a board fact: cite its ID and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells and board facts are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words.
+```
 
 **Spec sub-agent prompt** should include:
 
-- The diff command and commit list.
-- The path or fetched contents of the spec.
-- The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
+1. The diff command and commit list.
+2. The path or fetched contents of the spec.
+3. The brief:
+```
+Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words.
+```
 
-If the spec is missing, skip the Spec sub-agent and note this in the final report.
-
-### 5. Aggregate
+## Aggregation
 
 Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
 
