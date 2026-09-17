@@ -1,8 +1,6 @@
 # Research
 
-Spin up a **background agent** to do the research, so you keep working while it reads.
-
-Its job:
+Your job:
 
 1. Investigate the question against **primary sources**, not a secondary write-up of them. Follow every claim back to the source that owns it.
 2. Write the findings to a single Markdown file, citing each claim's source.

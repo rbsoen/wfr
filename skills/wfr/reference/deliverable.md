@@ -8,10 +8,9 @@ Work the impl frontier: `wfr.py frontier FILE`, claim, build.
 
 Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typecheck and run the touched tests as you go, the full suite once at the end. **Every test you turn green, `comment` it before writing the next** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. The green test is the trigger: a build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve. When a failure proves a board heads-up wrong, supersede it then, `--ref` this ticket.
 
-
 **A gap is a thing the build needs decided that the spec never decided.** Sort each one by whether it is hard to reverse:
 
-- **Easy to reverse** - a name, a default, internal layout: decide it, build on, and log it under Calls.
+- **Easy to reverse** - a name, a default, internal layout: decide it, build on, and log it under **Gaps**.
 - **Hard to reverse** - a schema, a wire format, a public interface, anything a ticket blocked on this one builds on: stop. `add` a `grilling` child of this impl ticket, `block` the ticket on it, and release the claim. The human answers it as a normal round.
 
 **Bring the board current before you resolve**: every heads-up on a path this diff touched still holds or is superseded, and every surprise you hit that a later session would repeat is a new heads-up, `--ref` this ticket, `--create-ref` this commit. A gap you decided that a later ticket builds on is a fact too.
@@ -81,28 +80,3 @@ Release the claim in the next call, once the resolve has echoed its byte count b
 ### Follow-up
 
 User feedback on a resolved ticket — a correction, a new requirement surfaced by seeing the actual thing — becomes a child of that ticket, kinded by what the work is (`impl`, `grilling`, `research`). Ticket it on sight; the user typing a correction is the brief. Non-actionable notes go as `comment`.
-
-## Review
-
-When a `review` ticket is on the frontier: claim it, then follow [code-review](code-review.md).
-
-**Dispatch** one **blind** agent per axis, in parallel: each gets the diff and its own axis material, and none of the impl author's reasoning. The Standards agent also gets the board's heads-ups: `wfr.py board FILE`, less any whose `ref` or `create_ref` is the parent impl ticket.
-
-The fixed point is the previous impl ticket's commit ref, off the map; the spec is the `spec` ticket body. The review *is* the two reports: the step closes when both land in the chat.
-
-Resolve the review ticket. The body ends in `## Calls`: one row per finding — the axis (`Standards:`, `Spec:`), the thing, and the severity. No disposition: the human reads the table and decides what to fix.
-
-```sh
-wfr.py resolve /abs/path.wf 13 <<'EOF'
-Code review for #12
-
-## Calls
-
-| No. | Kind | What | Action |
-| ---- | --- | --- | --- |
-| 1 | Standards | duplicated .gitignore line | needs fix |
-| 2 | Standards | terse `Plug` struct name | judgement call, matches convention |
-| 3 | Spec | DIB grey fill vs. "blank" | needs fix, zero-init/black |
-
-EOF
-```

@@ -16,7 +16,7 @@ Depending on how this skill is invoked:
 * **Bare**: ask the user what they meant: continuing a `.wf`, charting a new effort, or something else.
 * **No file, and the user states the goal in prose**: you're charting, and any `.wf` you find is irrelevant. `wfr.py init $PWD/<slug>.wf --title "<the effort>"`, state where it landed, then name the goal.
 * **A file named**: `wfr.py map FILE`. Roots hold destination, notes, fog: read them. Then pick up `wfr.py board FILE`, they hold heads-ups and precautions that apply to the entire effort.
-* **A file and number named**: `wfr.py show FILE NUMBER`, then `wfr.py board FILE`. Pick up from there.
+* **A file and number named**: `wfr.py show FILE NUMBER`, then `wfr.py board FILE`. Follow the instructions for its kind under [Types of ticket](#types-of-ticket), then pick up from there.
 
 Invoking this skill is the user's call that this effort is tracked. Chart it, whatever the subject. **Decision trees are universal**, only a deliverable assumes a codebase.
 
@@ -51,7 +51,7 @@ A spec in its own `.wf`, or a spec root beside the map, happens **only when the 
 2. `wfr.py map FILE`: every question you asked is on it, every answer in a gist or a body, and the chart matching the tree - no fog the tree has already lifted.
 3. `wfr.py research FILE` and `wfr.py term FILE`: every fact a decision rested on, and every word you had to learn, is there.
 
-## Map
+## Working through a map
 
 1. **Name the destination**. Use [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md) to pin down exactly what this effort is finding its way to: a spec to build from, a decision to lock, a change made in place. It fixes the scope, so every ticket under it is judged against it.
 2. **Grill again breadth-first**. Fan across the space, rather than deep on one thread.
@@ -92,7 +92,7 @@ A round that ends at step 2 leaves the map describing the effort as it was befor
 
 Either way, the corrected question is a child of what it corrects.
 
-### Research
+### Performing research
 
 1. `add` the `research` ticket, parented to the `map` or the `grill` that originates it, and write its body then and there (`--body -`). **A research ticket is never bodyless**: the body is the brief - the fact wanted, the decision waiting on it, what counts as an answer - and step 3's prompt is cut from it.
 2. `wfr.py claim FILE N` **before** you dispatch. A background agent is work under way, and an unclaimed research ticket is one a parallel session takes and redoes.
@@ -105,7 +105,7 @@ The research file's title comes from the `# ` heading; `--ticket N` hangs it off
 5. Resolve the research ticket, the finding as its gist and `/r/ID` as where the detail lives.
 
 
-## Spec
+## Drafting the spec
 
 **The destination decides whether this phase runs.** Something to **build** reaches here.
 
@@ -114,21 +114,17 @@ The research file's title comes from the `# ` heading; `--ticket N` hangs it off
 3. **Read the fog bodies back before you call it**. Fog goes stale the moment the ticket that lit it resolves.
 4. The spec **composes** "Decisions so far" and does not re-argue them; where a decision needs its reasoning, link its ticket.
 
-## Deliverable
+## Drafting the deliverable
 
 1. Add `kind=impl` children of the spec. Follow [to-tickets](reference/to-tickets.md) to draft and quiz the vertical slices.
 2. **Block each ticket on the sibling tickets it actually depends on**, never the spec itself - parentage already records that it came from there.
 3. **A screen nobody has seen is not a ticket yet.** Where a user will look at the result and no resolved ticket settled how it looks, add a `prototype` child of that ticket.
 
-### Review
-
-Each resolved impl adds one `review` child. It does not block the next impl, it hits the frontier beside it. Work it now, batch several, or leave it; the next impl proceeds either way.
-
 ## Types of ticket
 
 ### Grilling
 
-Conversation, and the default. Human-in-the-loop; the user answers for themselves and you never answer for them. Follow [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md).
+Follow [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md). Conversation, and is the default. Human-in-the-loop; the user answers for themselves and you never answer for them.
 
 **Grills beget grills.** A resolved grill usually raises the next question as a consequence. Add it as a child of the grill that raised it, not the map, so the tree records what led to what.
 
@@ -138,11 +134,11 @@ Conversation, and the default. Human-in-the-loop; the user answers for themselve
 
 ### Research
 
-A fact a decision waits on: from outside this directory, or from inside it when establishing it took more than one command. AFK - it never holds up a round because it runs parallel.
+When starting from this ticket, follow [Performing research](#performing-research). A fact a decision waits on: from outside this directory, or from inside it when establishing it took more than one command. During grilling, this ticket is AFK - it never holds up a round because it runs parallel.
 
 ### Prototype
 
-When "how should it look" or "how should it behave" is the question. HITL. Follow [prototype](reference/prototype.md) to run one. Follow [prototype-caller](reference/prototype_caller.md) for handling them: the ticket body, the scratchpad round-trip, and landing the settled take in the store.
+Follow [prototype-caller](reference/prototype_caller.md). Raise one when "how should it look" or "how should it behave" is the question.
 
 ### Task
 
@@ -150,8 +146,8 @@ Manual work gating a decision: provisioning, access, moving data so its shape ca
 
 ### Implementation
 
-The actual execution of the spec. Follow [deliverable](reference/deliverable.md).
+Follow [deliverable](reference/deliverable.md). Each resolved impl adds one `review` child. It does not block the next impl, it hits the frontier beside it.
 
 ### Review
 
-Follow [code review](reference/code-review.md).
+Claim it, then follow [code review](reference/code-review.md). Work it now, batch several, or leave it; the next impl proceeds either way.

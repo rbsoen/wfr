@@ -1146,11 +1146,10 @@ def cmd_resolve(a):
     missing = [h for h in need if h not in body]
     if missing:
         die('#%d is a %s: its resolution must carry %s — a bare gist drops the table '
-            'the human reads. Compose the whole payload (subject, blank line, then the '
-            "sections) and pipe it as a heredoc:\n"
-            "    wfr.py resolve %s %d --body - <<'EOF'\n"
-            '    <subject>\n\n    %s\n    ...\n    EOF'
-            % (a.id, r['kind'], ', '.join(missing), a.file, a.id, missing[0]))
+            'the human reads. Read reference/%s in the wfr skill directory '
+            'before composing it: closing a %s takes more than these headings.'
+            % (a.id, r['kind'], ', '.join(missing),
+               {'impl': 'deliverable.md', 'review': 'code-review.md'}[r['kind']], r['kind']))
     heading = OUT_OF_SCOPE if a.oos else DECISIONS
     # Everything below runs under the write lock: the map is read *after*
     # BEGIN IMMEDIATE, or two concurrent resolves each append to the same
