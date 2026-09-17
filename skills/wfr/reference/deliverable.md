@@ -1,37 +1,37 @@
 # Deliverable
 
-Work the impl frontier: `wfr.py frontier FILE`, claim, build.
+After claiming:
+
+## 1. Check ticket's fitness
 
 **A claimed ticket that doesn't fit one context boundary is split, not started** — the same fit-check the ticket was drafted against (≤~3 files, ≤~5 steps, one deliverable, no open-ended search). If exploring the code showed it overruns, `add` the split children, `block` accordingly, release the claim. Building an oversize ticket is what compacts mid-session.
 
-**Read the board heads-ups first.** `wfr.py board FILE` carries what earlier sessions learned the hard way: unwritten conventions, gotchas, surprises. Check each on a path this ticket touches against its `create_ref` — `git log REF..HEAD -- PATHS` for a commit, `git log --since` for a time, that ticket's resolve commit for a ticket — and supersede any that no longer holds.
+## 2. Build
 
-Follow [TDD](tdd.md) at the seams the spec named - the failing test first. Typecheck and run the touched tests as you go, the full suite once at the end. **Every test you turn green, `comment` it before writing the next** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. The green test is the trigger: a build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve. When a failure proves a board heads-up wrong, supersede it then, `--ref` this ticket.
+Write its **failing test** and make sure it goes red. A new test that passes on its first run tests nothing. Follow [TDD](tdd.md) at the seams the spec named. Typecheck and run the touched tests as you go, the full suite once at the end.
+
+**Every test you turn green, `comment` it before writing the next** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. A build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve.
+
+When a failure proves a board heads-up wrong: supersede it then, `--ref` this ticket.
 
 **A gap is a thing the build needs decided that the spec never decided.** Sort each one by whether it is hard to reverse:
 
 - **Easy to reverse** - a name, a default, internal layout: decide it, build on, and log it under **Gaps**.
 - **Hard to reverse** - a schema, a wire format, a public interface, anything a ticket blocked on this one builds on: stop. `add` a `grilling` child of this impl ticket, `block` the ticket on it, and release the claim. The human answers it as a normal round.
 
+## 3. Close it out
+
 **Bring the board current before you resolve**: every heads-up on a path this diff touched still holds or is superseded, and every surprise you hit that a later session would repeat is a new heads-up, `--ref` this ticket, `--create-ref` this commit. A gap you decided that a later ticket builds on is a fact too.
 
-**Close the impl in four ordered moves — commit, compose, resolve, review:**
+**Close the impl in five ordered moves — commit, compose, resolve, review, release:**
 
 1. **Commit** the ticket's work — one commit for the whole ticket; nothing resolves uncommitted, so the ref is real. Unless a standing rule forbids commits: skip it, and the body carries no ref.
 2. **Compose the resolve payload** in the shape below — a decision subject, then the three sections. **The subject states the decision, not a description of the files or a status line** ("Tracer bullet working" is a status; the decision is what you built and chose). It becomes the gist.
 3. **Resolve by piping that payload to `resolve` on stdin** — no positional subject, no `--body`, no `--gist`. One heredoc, alone in its Bash call (see below).
 4. **Add the review child** — `add` one `kind=review` child of this impl, not blocked on anything.
+5. **Release the claim**, once the resolve has echoed its byte count back.
 
-An impl is closed only when all four exist. Miss the subject shape or the sections and the gist reads as a status note; miss the review child and the review it owes never reaches the frontier.
-
-**The body opens with `## What it does`** — the delivered behaviour in prose and pseudo-code (where applicable). It is **intent, not the code**: the human reads it first and can reject the approach outright — a `grilling` child, redo — before opening the diff, so keep it honest to what you meant to build, not polished past it. Under `## Verified`, name the test that holds the slice and paste the one worked example it pins — `input → observed output`, or `before → after` where nothing is shown — the proof it ran; then point at the code as a `symbol` in a path at the commit ref. Never paste the body itself: it reads as live code and goes stale the next time a slice touches those lines, where a symbol at a ref does not.
-
-The body ends in `## Gaps`: one row for **every gap you decided** — the thing, the disposition, and the reason where the disposition does not carry it. The human course-corrects from this table, so a gap left off it is a call they never saw.
-
-`resolve` takes that answer on **stdin** and no text argument, and one resolve is the whole
-close: it posts the comment, closes the ticket, lands the gist on the map. So a heredoc, alone
-in its Bash call - a second command sharing the call takes the redirect with it:
-
+Resolve in a format like this:
 ```sh
 wfr.py resolve /abs/path.wf 12 <<'EOF'
 Subject line, becomes the gist
@@ -75,7 +75,9 @@ Reads every open ticket, then drops the root (#1), any with an unclosed blocker,
 EOF
 ```
 
-Release the claim in the next call, once the resolve has echoed its byte count back.
+1. "What it does": the delivered behaviour in prose and pseudo-code (where applicable). It is *intent, not the code*: the human reads it first and can reject the approach outright (e.g. via a `grilling` child).
+2. "Verified": name the test that holds the slice and paste the one worked example it pins. Never paste the body itself: it reads as live code and goes stale the next time a slice touches those lines, where a symbol at a ref does not.
+3. "Gaps": one row for **every gap you decided** — the thing, the disposition, and the reason where the disposition does not carry it. The human course-corrects from this table, so a gap left off it is a call they never saw.
 
 ### Follow-up
 

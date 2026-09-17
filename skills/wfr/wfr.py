@@ -25,6 +25,21 @@ REQUIRED_SECTIONS = {
     'impl': ('## What it does', '## Verified', '## Gaps'),
     'review': ('## Calls',),
 }
+# What an open ticket's agent reads before working it, relative to the skill
+# directory: show prints it as a header, resolve's section check points at it.
+NEXT = {
+    'impl': ('reference/deliverable.md', ' before building'),
+    'review': ('reference/code-review.md', ''),
+    'prototype': ('reference/prototype_caller.md', ''),
+    'research': ('SKILL.md', ' § Performing research'),
+    'spec': ('reference/to-tickets.md', ' to cut it into impl tickets'),
+}
+
+
+def skill_file(rel):
+    # realpath follows a PATH symlink back to the skill; a copy falls back to prose
+    found = os.path.join(os.path.dirname(os.path.realpath(__file__)), rel)
+    return found if os.path.exists(found) else rel + ' in the wfr skill directory'
 
 SCHEMA = """
 CREATE TABLE issue(
@@ -1146,10 +1161,9 @@ def cmd_resolve(a):
     missing = [h for h in need if h not in body]
     if missing:
         die('#%d is a %s: its resolution must carry %s — a bare gist drops the table '
-            'the human reads. Read reference/%s in the wfr skill directory '
-            'before composing it: closing a %s takes more than these headings.'
-            % (a.id, r['kind'], ', '.join(missing),
-               {'impl': 'deliverable.md', 'review': 'code-review.md'}[r['kind']], r['kind']))
+            'the human reads. Read %s before composing it: closing a %s takes more '
+            'than these headings.' % (a.id, r['kind'], ', '.join(missing),
+                                      skill_file(NEXT[r['kind']][0]), r['kind']))
     heading = OUT_OF_SCOPE if a.oos else DECISIONS
     # Everything below runs under the write lock: the map is read *after*
     # BEGIN IMMEDIATE, or two concurrent resolves each append to the same
@@ -1405,6 +1419,11 @@ def cmd_show(a):
                             '  ' + verdict_label(r).upper() if r['verdict'] else '',
                             '  @' + r['assignee'] if r['assignee'] else '',
                             '  parent #%s' % r['parent'] if r['parent'] else ''))
+    if r['status'] == 'open' and r['kind'] in NEXT:
+        path, why = NEXT[r['kind']]
+        # a held claim may be a live session: report it, never re-claim
+        claim = 'claim, then ' if r['kind'] != 'spec' and not r['assignee'] else ''
+        print('    next: %sread %s%s' % (claim, skill_file(path), why))
     if r['gist']:
         print('    gist: %s' % r['gist'])
     if picked_note(r):

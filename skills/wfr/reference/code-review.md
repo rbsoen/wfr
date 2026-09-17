@@ -85,3 +85,5 @@ Code review for #12
 
 EOF
 ```
+
+After resolving, release the claim.
