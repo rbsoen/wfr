@@ -4,7 +4,11 @@ After claiming:
 
 ## 1. Check ticket's fitness
 
-**A claimed ticket that doesn't fit one context boundary is split, not started** — the same fit-check the ticket was drafted against (≤~3 files, ≤~5 steps, one deliverable, no open-ended search). If exploring the code showed it overruns, `add` the split children, `block` accordingly, release the claim. Building an oversize ticket is what compacts mid-session.
+**Count before you build**, off the code you just explored rather than the ticket's own estimate: the files this touches, the steps it takes, the deliverables it lands. The budget is the one the ticket was drafted against — ≤~3 files, ≤~5 steps, one deliverable, and a search that ends.
+
+**Over budget splits, and the split ends your turn on this ticket**: `add` the split children, `block` accordingly, release the claim, and report the counts to the human. Claiming the first child now spends the context the split just bought, which is the mid-session compaction the fit-check exists to prevent. A ticket whose files you cannot count is over budget: the counting is the open-ended search.
+
+The human is the only override. Told to build it whole, `comment` the counts first, then build.
 
 ## 2. Build
 
@@ -12,7 +16,7 @@ Before writing any code, read [TDD](tdd.md); it applies at the seams the spec na
 
 1. Write the **failing test**, run it, and see it go **red** before touching the code under test. A new test that passes on its first run tests nothing.
 2. Make it green. Typecheck and run the touched tests as you go.
-3. **`comment` it before writing the next test** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. A build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve.
+3. **Post a `comment` on the ticket before writing the next test** — `wfr.py comment FILE N`, one line for the behaviour that now works and the file(s) you touched. A build that turned three tests green and posted no comment threw away its refresh points. An interrupted session rebuilds from those comments plus the held claim; the commit still lands once, as a unit, at resolve.
 
 Once every test is green, run the full suite once.
 
