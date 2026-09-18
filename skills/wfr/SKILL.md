@@ -2,19 +2,20 @@
 name: wfr
 description: Run an effort inside a single `.wf` tracker.
 disallowed-tools: AskUserQuestion
+disable-model-invocation: true
 ---
 
 A `.wf` file represents one effort in a self-contained ticket tracker: a SQLite file, read and written through `wfr.py` alone.
 
 ## First up
 
-`wfr.py` run with no arguments prints the reference: all ~270 lines of its output. Run it, once; reading the script is not a substitute. If not located in the user's PATH, it's in the skill directory.
+`wfr.py` run with no arguments prints the reference: all ~270 lines of its output. Run it, once; reading the script is not a substitute. If not on PATH, it's in the skill's base directory.
 
 Depending on how this skill is invoked:
 * **Bare**: ask the user what they meant: continuing a `.wf`, charting a new effort, or something else.
-* **No file, and the user states the goal in prose**: you're charting, and any `.wf` you find is irrelevant. `wfr.py` (the reference), then `wfr.py init $PWD/<slug>.wf --title "<the effort>"`, state where it landed, then name the goal.
-* **A file named**: `wfr.py` (the reference), then `wfr.py map FILE`. Roots hold destination, notes, fog: read them. Then pick up `wfr.py board FILE`, they hold heads-ups and precautions that apply to the entire effort, and `wfr.py research FILE`, the facts already established. A brief given with the file [opens a round](#opening-a-round): its questions are the frontier.
-* **A file and number named**: `wfr.py` (the reference), then `wfr.py show FILE NUMBER`, then `wfr.py board FILE`. Follow the instructions for its kind under [Types of ticket](#types-of-ticket), then pick up from there.
+* **No file, and the user states the goal in prose**: you're charting, and any `.wf` you find is irrelevant. `wfr.py`, then `wfr.py init $PWD/<slug>.wf --title "<the effort>"`, state where it landed, then name the goal.
+* **A file named**: `wfr.py`, then `wfr.py map FILE`. Roots hold destination, notes, fog: read them. Then pick up `wfr.py board FILE`, they hold heads-ups and precautions that apply to the entire effort, and `wfr.py research FILE`, the facts already established. A brief given with the file [opens a round](#opening-a-round): its questions are the frontier.
+* **A file and number named**: `wfr.py`, then `wfr.py show FILE NUMBER`, then `wfr.py board FILE`. Follow the instructions for its kind under [Types of ticket](#types-of-ticket), then pick up from there.
 * **A file and number named, plus a brief**: Follow as above, but before any any work, fold the brief into the body (`show FILE NUMBER --body`, edit, `set FILE NUMBER body -`) because the next session reads the ticket and never the chat.
 
 Invoking this skill is the user's call that this effort is tracked. Chart it, whatever the subject. **Decision trees are universal**, only a deliverable assumes a codebase.
@@ -52,14 +53,14 @@ A spec in its own `.wf`, or a spec root beside the map, happens **only when the 
 
 ## Working through a map
 
-1. **Name the destination**. Use [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md) to pin down exactly what this effort is finding its way to: a spec to build from, a decision to lock, a change made in place. It fixes the scope, so every ticket under it is judged against it.
-2. **Grill again breadth-first**. Fan across the space, rather than deep on one thread.
-3. **Seed the map body**: destination, notes, fog under "Not yet specified". Questions the brief names seed the frontier; the breadth pass fills it.
+1. **Name the destination in the human's words, never your own**. Work it with [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md) to pin down exactly what this effort is finding its way to: a spec to build from, a decision to lock, a change made in place. It fixes the scope, so every ticket under it is judged against it. Where the brief leaves it open, the destination is the first round's first question; a constraint you supplied is one nobody ratified.
+2. **Grill again breadth-first**. Fan across the space, rather than deep on one thread. Questions the brief names seed the frontier; the breadth pass fills it.
+3. **Seed the map body**: read it back (`show FILE 1 --body`), "Decisions" and "Out of scope" are written by `resolve`, submit them unchanged. destination, notes, fog under "Not yet specified"; empty section stays empty.
 4. **Plan, don't do**. Map tickets resolve into decisions, not execution.
 
 ### Opening a round
 
-1. `add` every question in the round, each with its body (`--body -`) - the framing you would otherwise type under it in the chat. **The title itself only contains the question**, never the number (e.g. `Q1`). **One ticket, one question.** The body frames it; every further question it raises is its own `add`: in this round if it is on the frontier now, otherwise as a child of the question it hangs on.
+1. `add` every question in the round **as one ticket each** — human-fact ones included. Its body (`--body -`) is the framing you would otherwise type under it in the chat. Every further question it raises is its own `add`: in this round if it is on the frontier now, otherwise as a child of the question it hangs on. **The title itself only contains the question**, never the number (e.g. `Q1`). 
 2. Write each one's `option` rows, each with its why in `--body`, and your `recommend`. See exceptions below.
 3. Only then, type the round into the chat.
 
@@ -82,7 +83,7 @@ Format a round like so, one block per question, `---` between them. A question b
 
 **The `➡️` is the number alone** - just `➡️ 2`, the picked option's digit. Its why went into that ticket's `recommend` body at write-up, and stays there: the round points, the file explains.
 
-**A fact only the human holds takes a body, no options, no `recommend` and no `➡️`.** Where they live, what they already own, what happened the last time they did this: unfindable, so ask it bare of options and resolve with `--picked` omitted, which claims nothing.
+**A fact only the human holds still gets a ticket, and skips steps 2 alone.**: a body, no options, no `recommend` and no `➡️`.** Where they live, what they already own, what happened the last time they did this: unfindable, so ask it bare of options and resolve with `--picked` omitted, which claims nothing.
 
 **An answer need not cover the round.** Leave unanswered questions open for the next round, never inferred. Option numbers restart at 1 on each ticket, so a bare number means nothing unpaired with its Q.
 
@@ -94,9 +95,10 @@ In one pass:
 
 1. `research --from` each fact this round's answers rest on that is not yet in `/r/`
 2. `resolve` each answered ticket with a subject and body. Linking the `/r/ID` it rests on.
-3. move the map body. fog those answers lifted comes off "Not yet specified", fog they revealed goes on, decisions worth keeping go to Notes; retitle an ADR as it resolves.
-4. `block` what the answers gated
-5. only then take `wfr.py frontier FILE` for the next round, or run [Before you stop](#before-you-stop) when the frontier holds none.
+3. `term` every word you had to pin down. The tell is *disambiguation*: you asked which sense was meant, the human corrected your usage, or you had to look the word up before you could ask about it. A resolve body explaining what a word means here is a definition in the wrong place.
+4. move the map body. fog those answers lifted comes off "Not yet specified", fog they revealed goes on, decisions worth keeping go to Notes; retitle an ADR as it resolves.
+5. `block` what the answers gated
+6. only then take `wfr.py frontier FILE` for the next round, or run [Before you stop](#before-you-stop) when the frontier holds none.
 
 A round that ends at step 2 leaves the map describing the effort as it was before you asked.
 
@@ -128,10 +130,11 @@ The research file's title comes from the `# ` heading; `--ticket N` hangs it off
 
 **The destination decides whether this phase runs.** Something to **build** reaches here.
 
-1. Add one `kind=spec` child of the map, then follow [spec](reference/spec.md). Only block it on **decisions still open** when the spec is cut.
-2. **Charted** is the gate to cut it, and it is two conditions: the frontier holds no decisions, *and* "Not yet specified" is empty.
-3. **Read the fog bodies back before you call it**. Fog goes stale the moment the ticket that lit it resolves.
-4. The spec **composes** "Decisions so far" and does not re-argue them; where a decision needs its reasoning, link its ticket.
+1. **Charted** is the gate to cut it, and it is two conditions: the frontier holds no decisions, *and* "Not yet specified" is empty.
+2. **Read the fog bodies back before you call it**. Fog goes stale the moment the ticket that lit it resolves.
+3. **Read [spec](reference/spec.md) before you write a word of the body.** It carries the seam sketch you put to the user *first*, and the section skeleton the body fills.
+4. `add` one `kind=spec` child of the map blocked only on **decisions still open** when the spec is cut.
+5. The spec **composes** "Decisions so far" and does not re-argue them; where a decision needs its reasoning, link its ticket.
 
 ## Drafting the deliverable
 
@@ -150,8 +153,6 @@ Follow [grilling](reference/grilling.md) and [domain modeling](reference/domain-
 
 **The human types the answer in prose.** Your options are only the answers you already thought of, and the one that matters is the one you did not: that the premise under the round is wrong. Typed prose is where "none of these, you have misread X" arrives. A round that dies on pushback is this working.
 
-**A word you had to pin down is a `term`.** Write it with `wfr.py term` as that grill resolves, not at round close. A resolve body explaining what a word means here is a definition in the wrong place. The tell is *disambiguation*: you asked which sense was meant, the human corrected your usage, or you had to look the word up before you could ask about it.
-
 ### Research
 
 When starting from this ticket, follow [Performing research](#performing-research). A fact a decision waits on: from outside this directory, or from inside it when establishing it took more than one command. During grilling, this ticket is AFK - it never holds up a round because it runs parallel.
@@ -166,8 +167,8 @@ Manual work gating a decision: provisioning, access, moving data so its shape ca
 
 ### Implementation
 
-Follow [deliverable](reference/deliverable.md). **Resolving an impl adds its one `review` child; drafting adds none.** It does not block the next impl, it hits the frontier beside it.
+Follow [deliverable](reference/deliverable.md). **Resolving an impl adds its one `review` child; drafting adds none.** It does not block the next impl, it hits the frontier beside it. Then run [Before you stop](#before-you-stop).
 
 ### Review
 
-Claim it, then follow [code review](reference/code-review.md). Work it now, batch several, or leave it; the next impl proceeds either way.
+Claim it, then follow [code review](reference/code-review.md). Work it now, batch several, or leave it; the next impl proceeds either way. Then run [Before you stop](#before-you-stop).
