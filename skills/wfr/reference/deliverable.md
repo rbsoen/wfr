@@ -46,21 +46,29 @@ Subject line, becomes the gist
 
 ## What it does
 
-Reads every open ticket, then drops the root (#1), any with an unclosed blocker, and any with a non-empty assignee, and prints the rest oldest-first by id.
+Reads every open ticket, filters out the non-frontier tickets, then prints the rest oldest-first by id.
 
     frontier_list = []
     for t in open tickets:
-        t is root (#1):
-          skip
-        t.assignee set: # claimed
-          skip
-        any blocker open:
-          skip
-        else:
-          add to frontier_list
+      if t is not a frontier ticket:
+        skip
+      else:
+        add to frontier_list
     sort frontier_list oldest-first
     for i in frontier_list:
       print i
+
+The non-frontier tickets are defined as: the root (#1), any with an unclosed blocker, and any with a non-empty assignee.
+
+    is t a frontier ticket?
+      if t is root (#1):
+        no
+      else if t.assignee set: # claimed
+        no
+      else any blocker of t open:
+        no
+      else:
+        yes
 
 ## Verified
 
@@ -83,7 +91,7 @@ Reads every open ticket, then drops the root (#1), any with an unclosed blocker,
 EOF
 ```
 
-1. "What it does": the delivered behaviour in prose and pseudo-code (where applicable). It is *intent, not the code*: the human reads it first and can reject the approach outright (e.g. via a `grilling` child).
+1. "What it does": the delivered behaviour in prose and **one or more pseudo-code blocks where applicable**. It is *intent, not the code*: the human reads it first and can reject the approach outright (e.g. via a `grilling` child).
 2. "Verified": name the test that holds the slice and paste the one worked example it pins. Never paste the body itself: it reads as live code and goes stale the next time a slice touches those lines, where a symbol at a ref does not.
 3. "Gaps": one row for **every gap you decided** — the thing, the disposition, and the reason where the disposition does not carry it. The human course-corrects from this table, so a gap left off it is a call they never saw.
 
