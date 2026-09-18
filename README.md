@@ -76,3 +76,12 @@ I wanted to change the set so that it will do that but also be:
 
 1. obvious to agents - hence the `wfr.py` tool
 2. human readable - hence the server functionality in the same tool
+
+## How do I know it's working?
+
+1. You see a clear and comprehensive decision tree.
+2. Decisions and recommendations are backed up by stored research docs.
+3. Unambiguous glossary for project-specific terms that you and the agent share.
+4. Build order: Red test → build → green test.
+5. Checkpoints commented on implementation tickets to indicate progress—A compacted or interrupted session can anchor off it.
+6. Implementation tickets get resolved with: what it does, what it verified, and what spec gaps it found and called.
