@@ -14,3 +14,4 @@ Your job:
 4. First-party APIs
 
 For every single claim, you MUST provide a direct blockquote OR a code citation in the form of `file:line`.
+To ensure a verbatim block quote, you should not use the Fetch tool, as the tool summarizes results and its accuracy varies.
