@@ -869,7 +869,7 @@ def markdown(text):
             out.append('<%s%s>%s</%s>' % (L['tag'], attr, ''.join(items), L['tag']))
             lst.clear()
         if quote:
-            out.append('<blockquote>%s</blockquote>' % _inline(' '.join(quote))); quote.clear()
+            out.append('<blockquote>%s</blockquote>' % markdown('\n'.join(quote))); quote.clear()
 
     lines, i = text.split('\n'), 0
     while i < len(lines):
@@ -927,9 +927,9 @@ def markdown(text):
                 L['tag'] = tag
                 L['start'] = int(m.group(2)) if tag == 'ol' else 1
             lst.append((int(m.group(2)) if m.group(2) else None, m.group(3)))
-        elif line.startswith('&gt;'):
+        elif raw.startswith('>'):
             if para or lst: flush()
-            quote.append(re.sub(r'^&gt;[ \t]?', '', line))
+            quote.append(re.sub(r'^>[ \t]?', '', raw))   # raw: rendered again as markdown
         elif not line.strip():
             flush()
         else:
@@ -1935,6 +1935,7 @@ top:var(--y);border-top:1px solid var(--rail)}
 .tr.st-claimed{background:var(--row-claimed)}
 .tr.st-blocked{background:var(--row-blocked)}
 .tr.st-closed{background:var(--row-closed)}
+body.fo .tr:not(.st-frontier){display:none}
 .tr a{text-decoration:none}.tr a:hover .t{text-decoration:underline}
 .body{background:var(--panel);border:1px solid var(--line);border-radius:8px;
 padding:2px 10px;margin:8px 0;overflow-x:auto}
@@ -2018,6 +2019,11 @@ def view_tree(db):
     sub = '%d issues · ' % len(rows) + ' · '.join(
         '<span class="dot s-%s"></span> %d %s' % (s, counts[s], 'root' if s == 'open' else s)
         for s in ('open', 'frontier', 'claimed', 'blocked', 'closed') if s in counts)
+    sub += (' · <label><input type="checkbox" id="fo" autocomplete="off"> frontier only</label>'
+            '<script>(function(){var c=document.getElementById("fo"),k="wfr-fo";'
+            'function ap(){document.body.classList.toggle("fo",c.checked)}'
+            'c.checked=localStorage.getItem(k)==="1";ap();'
+            'c.onchange=function(){localStorage.setItem(k,c.checked?"1":"0");ap()}})()</script>')
     out = []
     # A lone root never needs a rail of its own, so its column is dead indent:
     # drop it. With several roots that column does carry bars, so keep it.
