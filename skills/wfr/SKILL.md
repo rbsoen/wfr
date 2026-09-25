@@ -53,7 +53,7 @@ A spec in its own `.wf`, or a spec root beside the map, happens **only when the 
 
 ## Working through a map
 
-1. **Name the destination in the human's words, never your own**. Work it with [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md) to pin down exactly what this effort is finding its way to: a spec to build from, a decision to lock, a change made in place. It fixes the scope, so every ticket under it is judged against it. Where the brief leaves it open, the destination is the first round's first question; a constraint you supplied is one nobody ratified.
+1. **Name the destination in the human's words, never your own**. Work it with [grilling](reference/grilling.md) and [domain modeling](reference/domain-modeling.md) to pin down exactly what this effort is finding its way to: a spec to build from, a document to hand over, a decision to lock, a change made in place. It fixes the scope, so every ticket under it is judged against it. Where the brief leaves it open, the destination is the first round's first question; a constraint you supplied is one nobody ratified. Where it is a document, the same round **asks** whether the spec template applies: one grill, options **built** (the software template) and **freeform** (the body is the deliverable).
 2. **Grill again breadth-first**. Fan across the space, rather than deep on one thread. Questions the brief names seed the frontier; the breadth pass fills it.
 3. **Seed the map body**: read it back (`show FILE 1 --body`), "Decisions" and "Out of scope" are written by `resolve`, submit them unchanged. destination, notes, fog under "Not yet specified"; empty section stays empty.
 4. **Plan, don't do**. Map tickets resolve into decisions, not execution.
@@ -128,15 +128,17 @@ The research file's title comes from the `# ` heading; `--ticket N` hangs it off
 
 ## Drafting the spec
 
-**The destination decides whether this phase runs.** Something to **build** reaches here.
+**The destination decides whether this phase runs.** Something to **build** or a **document** to hand over reaches here. A **decision to lock** does not: its destination is itself the last grill, blocked on what it rests on, resolved `--adr`, then [Before you stop](#before-you-stop).
 
 1. **Charted** is the gate to cut it, and it is two conditions: the frontier holds no decisions, *and* "Not yet specified" is empty.
 2. **Read the fog bodies back before you call it**. Fog goes stale the moment the ticket that lit it resolves.
-3. **Read [spec](reference/spec.md) before you write a word of the body.** It carries the seam sketch you put to the user *first*, and the section skeleton the body fills.
+3. **Read [spec](reference/spec.md) before you write a word of the body.** It sorts **built** from **freeform** by the template grill's answer, and carries each one's shape.
 4. `add` one `kind=spec` child of the map blocked only on **decisions still open** when the spec is cut.
 5. The spec **composes** "Decisions so far" and does not re-argue them; where a decision needs its reasoning, link its ticket.
 
 ## Drafting the deliverable
+
++**Built** specs only; a freeform spec's body is the deliverable.
 
 1. Add `kind=impl` children of the spec. Follow [to-tickets](reference/to-tickets.md) to draft and quiz the vertical slices. A user who says to skip the quiz skips the quiz alone: the slice rules and step 3 still hold.
 2. **Block each ticket on the sibling tickets it actually depends on**, never the spec itself - parentage already records that it came from there.
@@ -163,7 +165,7 @@ Follow [prototype-caller](reference/prototype_caller.md). Raise one when "how sh
 
 ### Task
 
-Manual work gating a decision: provisioning, access, moving data so its shape can be seen. The one kind that does rather than decides, earning its place by unblocking a question.
+Manual work gating a decision or filling a freeform spec: provisioning, access, moving data so its shape can be seen, writing a section. The one kind that does rather than decides, earning its place by unblocking a question or landing part of a spec.
 
 ### Implementation
 

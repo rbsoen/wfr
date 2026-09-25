@@ -32,7 +32,7 @@ NEXT = {
     'review': ('reference/code-review.md', ''),
     'prototype': ('reference/prototype_caller.md', ''),
     'research': ('SKILL.md', ' § Performing research'),
-    'spec': ('reference/to-tickets.md', ' to cut it into impl tickets'),
+    'spec': ('reference/spec.md', ''),
 }
 
 

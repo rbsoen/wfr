@@ -1,5 +1,22 @@
 # Spec
 
+A spec is **built** or **freeform**, as the template grill decided.
+
+* Built: something executable comes out of it, cut into `impl` tickets.
+* Freeform: the body **is** the deliverable - an itinerary, a hiring plan, a brief.
+
+**A gap the spec needs decided and no grill settled** sorts by whether it is hard to reverse. Hard to reverse (a schema, a wire format, a public interface, a booking, an offer letter): `add` a `grilling` child of the spec and `block` the spec on it. Easy to reverse: decide it in the body.
+
+## Freeform
+
+The body is the document the user reads, in their format, sectioned for them. Every decision on the map lands in it or under a closing "Out of scope".
+
+Its children fill it: `research` for a fact, `task` for legwork, `grilling` for a gap.
+
+**Done** when the body reads as the finished document, every child is closed, and it is written where the user asked: `wfr.py show FILE N --body > PATH`.
+
+## Built
+
 Sketch the **seams** you will test at first - prefer existing ones, take the highest available, aim for one - and check them with the user before writing the rest. Where the effort builds nothing executable there are no seams: skip this and the Testing decisions section. Then the body:
 
 ```markdown
