@@ -63,7 +63,8 @@ The non-frontier tickets are defined as: the root (#1), any with an unclosed blo
     is t a frontier ticket?
       if t is root (#1):
         no
-      else if t.assignee set: # claimed
+      else if t.assignee set:
+        # claimed
         no
       else any blocker of t open:
         no
@@ -91,7 +92,7 @@ The non-frontier tickets are defined as: the root (#1), any with an unclosed blo
 EOF
 ```
 
-1. "What it does": the delivered behaviour in prose and **one or more pseudo-code blocks where applicable**. It is *intent, not the code*: the human reads it first and can reject the approach outright (e.g. via a `grilling` child).
+1. "What it does": the delivered behaviour in prose and **one or more pseudo-code blocks where applicable**. It is *intent, not the code*: the human reads it first and can reject the approach outright (e.g. via a `grilling` child). Write pseudo-code **one thing per line**: each statement, each list item, each comment. A header or label ends its line at the colon (`if x:`, `Questions:`, `Build(a):`), and its body or items follow on the next lines, indented. A comment sits on its own line beside the statement it explains. Before resolving, check every pseudo-code line outside comments: a colon outside a string is its last character.
 2. "Verified": name the test that holds the slice and paste the one worked example it pins. Never paste the body itself: it reads as live code and goes stale the next time a slice touches those lines, where a symbol at a ref does not.
 3. "Gaps": one row for **every gap you decided** — the thing, the disposition, and the reason where the disposition does not carry it. The human course-corrects from this table, so a gap left off it is a call they never saw.
 
