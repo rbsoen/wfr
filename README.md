@@ -94,7 +94,7 @@ The following shell invocation will perform 10 *sessions*, change the `{1..10}` 
 
 ```sh
 for i in {1..10}; do
-  claude -p "/wfr <FILE.wf> Take the next Implementation ticket from the frontier and complete it. If a ticket is claimed, re-claim it; no other Implementation session is currently running." --permission-mode auto;
+  claude -p "/wfr <FILE.wf> Take the next Implementation ticket from the frontier and complete it. If a ticket is claimed, re-claim it; no other Implementation session is currently running." --model sonnet --effort medium --permission-mode auto;
 done
 ```
 
