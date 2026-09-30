@@ -85,3 +85,15 @@ I wanted to change the set so that it will do that but also be:
 4. Build order: Red test → build → green test.
 5. Checkpoints commented on implementation tickets to indicate progress—A compacted or interrupted session can anchor off it.
 6. Implementation tickets get resolved with: what it does, what it verified, and what spec gaps it found and called.
+
+## Applying the Ralph loop
+
+Only after all of the implementation tickets have been created, you can  run the [Ralph loop](https://ghuntley.com/ralph/) on it, since one session completes one ticket:
+
+```sh
+for i in {1..10}; do
+  claude -p "/wfr <FILE.wf> Take the next Implementation ticket from the frontier and complete it. If a ticket is claimed, re-claim it; no other Implementation session is currently running." --permission-mode auto;
+done
+```
+
+If you run a session in parallel (e.g. for bug fixing or a new requirement), ensure that instead of executing actions, tell the agent to file a ticket using this skill instead.
