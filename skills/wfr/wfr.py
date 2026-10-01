@@ -1935,7 +1935,10 @@ top:var(--y);border-top:1px solid var(--rail)}
 .tr.st-claimed{background:var(--row-claimed)}
 .tr.st-blocked{background:var(--row-blocked)}
 .tr.st-closed{background:var(--row-closed)}
-body.fo .tr:not(.st-frontier){display:none}
+body.fo .tr:not(.st-frontier),.tr.h{display:none}
+.dot.p{position:relative;cursor:pointer}
+.dot.p::after{content:"";position:absolute;inset:-5px}
+.tr.c .dot.p{outline:1px solid var(--ink);outline-offset:1px}
 .tr a{text-decoration:none}.tr a:hover .t{text-decoration:underline}
 .body{background:var(--panel);border:1px solid var(--line);border-radius:8px;
 padding:2px 10px;margin:8px 0;overflow-x:auto}
@@ -2028,19 +2031,28 @@ def view_tree(db):
     # A lone root never needs a rail of its own, so its column is dead indent:
     # drop it. With several roots that column does carry bars, so keep it.
     trim = 1 if sum(1 for d, _b, _l, _r in rows if not d) == 1 else 0
-    for depth, bars, last, r in rows:
+    for n, (depth, bars, last, r) in enumerate(rows):
         st, w = state(db, r), waiting(db, r['id'])
+        kids = n + 1 < len(rows) and rows[n + 1][0] > depth
         prefix = tree_prefix(bars[trim:], last) if depth else ''
         out.append(
-            '<div class="tr st-%s%s">%s<div class="tx">'
-            '<span class="dot s-%s"></span> <a href="/i/%d"><span class="id">#%d</span> '
+            '<div class="tr st-%s%s" data-d="%d">%s<div class="tx">'
+            '<span class="dot s-%s%s"></span> <a href="/i/%d"><span class="id">#%d</span> '
             '<span class="k %s" title="%s">%s</span> <span class="t">%s</span></a>%s%s</div></div>'
-            % (st, ' done' if st == 'closed' else '', prefix, st, r['id'], r['id'],
+            % (st, ' done' if st == 'closed' else '', depth, prefix, st,
+               ' p' if kids else '', r['id'], r['id'],
                r['kind'], r['kind'], BADGE[r['kind']], html.escape(r['title']),
                ' <span class="v v-%s">%s</span>' % (r['verdict'], verdict_label(r))
                if r['verdict'] else '',
                ' <span class="wait">&#9676; %s</span>'
                % ' '.join('#%d' % x for x in w) if w else ''))
+    # a dot with children (.p) folds them away; x is the depth of the open fold
+    out.append('<script>(function(){var R=[].slice.call(document.querySelectorAll(".tr"));'
+               'document.addEventListener("click",function(e){var p=e.target.closest(".dot.p");'
+               'if(!p)return;p.closest(".tr").classList.toggle("c");var x=-1;'
+               'R.forEach(function(r){var d=+r.dataset.d;'
+               'if(x>=0&&d>x)r.classList.add("h");'
+               'else{x=-1;r.classList.remove("h");if(r.classList.contains("c"))x=d}})})})()</script>')
     return page(the_root(db)['title'], sub, ''.join(out), '/', [(None, 'Issues')])
 
 
@@ -2647,6 +2659,9 @@ def cmd_selftest(_):
         tagged = re.findall(r'<div class="tr st-(\w+)', tv)
         ck(len(tagged) == db.execute('SELECT count(*) c FROM issue').fetchone()['c'],
            'every tree row carries a state class')
+        ck(len(re.findall(r'class="dot s-\w+( p)?"></span> <a', tv)) == tv.count('class="tr ')
+           and ' p"></span> <a' in tv,
+           'a dot folds its children away only when it has some')
         ck(tv.count('<i class="e') == sum(1 for d, _b, _l, _r in walk(db) if d),
            'every row but the root draws exactly one elbow')
         ck(tree_prefix((), True) == '<i class="e l"></i>'
