@@ -1,5 +1,7 @@
 # Deliverable
 
+Built and committed by the human: skip to [Built by the human](#built-by-the-human).
+
 After claiming:
 
 ## 1. Check ticket's fitness
@@ -99,3 +101,16 @@ EOF
 ### Follow-up
 
 User feedback on a resolved ticket — a correction, a new requirement surfaced by seeing the actual thing — becomes a child of that ticket, kinded by what the work is (`impl`, `grilling`, `research`). Ticket it on sight; the user typing a correction is the brief. Non-actionable notes go as `comment`.
+
+## Built by the human
+
+The human wrote, tested and committed this ticket. Their reasons live where they wrote them: **code comments** in the diff, commit messages in the range, and the brief. The ticket holds none. Your work is the **record**: later sessions read it, never the human's head. Claim nothing.
+
+1. **Find the range**: the previous impl ticket's commit ref, off the map, to `HEAD`. Where a commit in it is not this ticket's, ask which are.
+2. **Run the full suite.** Red: report the failures and stop, unresolved.
+3. **Audit the gaps**: read the diff against the spec and this ticket's body. Every deviation lands in one place:
+   - **Explained by the human**: a Gaps row, their decision and reason **quoted**, with the `path` it came from. A code comment is edited or deleted with the code; the quote is what survives.
+   - **Unexplained, easy to reverse**: a Gaps row, Decision `Inferred: <what the diff does>`, for the human to confirm on reading.
+   - **Unexplained and hard to reverse, or one you read differently from their explanation**: a `grilling` child of this ticket, its body quoting that explanation where there is one, and `block` every ticket that builds on it on that grill.
+4. **Check the dependents**: every ticket blocked on this one still describes what the diff built. Rewrite a stale body (`show --body`, edit, `set body -`); a mismatch that is hard to reverse is step 3's grill.
+5. **Close it out** by [step 3](#3-close-it-out), the commit already made: the ref is `HEAD`, "What it does" is your reading of the diff, "Verified" names the human's tests.

@@ -16,7 +16,7 @@ Depending on how this skill is invoked:
 * **No file, and the user states the goal in prose**: you're charting, and any `.wf` you find is irrelevant. `wfr.py`, then `wfr.py init $PWD/<slug>.wf --title "<the effort>"`, state where it landed, then name the goal.
 * **A file named**: `wfr.py`, then `wfr.py map FILE`. Roots hold destination, notes, fog: read them. Then pick up `wfr.py board FILE`, they hold heads-ups and precautions that apply to the entire effort, and `wfr.py research FILE`, the facts already established. A brief given with the file [opens a round](#opening-a-round): its questions are the frontier.
 * **A file and number named**: `wfr.py`, then `wfr.py show FILE NUMBER`, then `wfr.py board FILE`. Follow the instructions for its kind under [Types of ticket](#types-of-ticket), then pick up from there.
-* **A file and number named, plus a brief**: Follow as above, but before any any work, fold the brief into the body (`show FILE NUMBER --body`, edit, `set FILE NUMBER body -`) because the next session reads the ticket and never the chat.
+* **A file and number named, plus a brief**: Follow as above, but before any any work, fold the brief into the body (`show FILE NUMBER --body`, edit, `set FILE NUMBER body -`) because the next session reads the ticket and never the chat. A brief saying the human built and committed an `impl` is the exception: the body stays as drafted, and you follow [Built by the human](reference/deliverable.md#built-by-the-human).
 
 Invoking this skill is the user's call that this effort is tracked. Chart it, whatever the subject. **Decision trees are universal**, only a deliverable assumes a codebase.
 
