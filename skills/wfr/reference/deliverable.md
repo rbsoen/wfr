@@ -2,13 +2,11 @@
 
 After claiming:
 
-## 1. Check ticket's fitness
+## 1. Fit-check, when the prompt asks for one
 
-**Count before you build**, off the code you just explored rather than the ticket's own estimate: the files this touches, the steps it takes, the deliverables it lands. The budget is the one the ticket was drafted against — ≤~3 files, ≤~5 steps, one deliverable, and a search that ends.
+**A fit-check runs only when the prompt asks for it**; otherwise go straight to Build. When asked, **count before you build**, off the code you just explored rather than the ticket's own estimate: the files this touches, the steps it takes, the deliverables it lands. The budget is the one the ticket was drafted against — ≤~3 files, ≤~5 steps, one deliverable, and a search that ends.
 
 **Over budget splits, and the split ends your turn on this ticket**: `add` the split children, `block` accordingly, release the claim, and report the counts to the human. Claiming the first child now spends the context the split just bought, which is the mid-session compaction the fit-check exists to prevent. A ticket whose files you cannot count is over budget: the counting is the open-ended search.
-
-The human is the only override. Told to build it whole, `comment` the counts first, then build.
 
 ## 2. Build
 
@@ -73,13 +71,22 @@ The non-frontier tickets are defined as: the root (#1), any with an unclosed blo
 
 ## Verified
 
-`test_frontier` at the frontier-query seam, the three exclusions it pins:
+`test_frontier` at the frontier-query seam, the three exclusions it pins.
 
-    claimed   #2 open but assigned          → excluded
-    blocked   #4 open, blocked by open #3   → excluded; #3 still listed
-    root      #1 with no blockers           → still excluded
-    
-    worked example  open {1 root, 2 claimed, 3, 4 blocked-by-3}  →  [3]
+Before:
+
+    $ pytest tests/test_frontier.py -q
+    FF.F
+    FAILED tests/test_frontier.py::test_excludes_claimed - assert [2, 3] == [3]
+    FAILED tests/test_frontier.py::test_excludes_blocked - assert [3, 4] == [3]
+    FAILED tests/test_frontier.py::test_worked_example - assert [2, 3, 4] == [3]
+    3 failed, 1 passed in 0.04s
+
+After:
+
+    $ pytest tests/test_frontier.py -q
+    ....
+    4 passed in 0.03s
 
 `frontier()` @ wfr.py #abc123f.
 
@@ -93,7 +100,7 @@ EOF
 ```
 
 1. "What it does": the delivered behaviour in prose and **one or more pseudo-code blocks where applicable**. It is *intent, not the code*: the human reads it first and can reject the approach outright (e.g. via a `grilling` child). Write pseudo-code **one thing per line**: each statement, each list item, each comment. A header or label ends its line at the colon (`if x:`, `Questions:`, `Build(a):`), and its body or items follow on the next lines, indented. A comment sits on its own line beside the statement it explains. Before resolving, check every pseudo-code line outside comments: a colon outside a string is its last character.
-2. "Verified": name the test that holds the slice and paste the one worked example it pins. Never paste the body itself: it reads as live code and goes stale the next time a slice touches those lines, where a symbol at a ref does not.
+2. "Verified": name the test that holds the slice, then two blocks, **Before** then **After**, each the **verbatim** output of the same test command: Before is the **red** run, captured before you wrote the code; After is the run once it passes. Paste the tool output exactly as printed, untrimmed and unretyped; a run you did not capture is a run you redo. Never paste the test body itself: it reads as live code and goes stale the next time a slice touches those lines, where a symbol at a ref does not.
 3. "Gaps": one row for **every gap you decided** — the thing, the disposition, and the reason where the disposition does not carry it. The human course-corrects from this table, so a gap left off it is a call they never saw.
 
 ### Follow-up

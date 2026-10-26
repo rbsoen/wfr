@@ -90,11 +90,11 @@ I wanted to change the set so that it will do that but also be:
 
 Only after all of the implementation tickets have been created, you can  run the [Ralph loop](https://ghuntley.com/ralph/) on it, since one session completes one ticket.
 
-The following shell invocation will perform 10 *sessions*, change the `{1..10}` if you want more. Sessions, because an implementation ticket may end up [being too big](skills/wfr/reference/deliverable.md) and the session will end up splitting it into sub-tickets—in this case, the next session may pick up one of the sub-tickets.
+The following shell invocation will perform 10 *sessions*, change the `{1..10}` if you want more. Sessions, because an implementation ticket may end up [being too big](skills/wfr/reference/deliverable.md) and the session, told to fit-check it, will split it into sub-tickets—in this case, the next session may pick up one of the sub-tickets.
 
 ```sh
 for i in {1..10}; do
-  claude -p "/wfr <FILE.wf> Take the next Implementation ticket from the frontier and complete it. If a ticket is claimed, re-claim it; no other Implementation session is currently running." --model sonnet --effort medium --permission-mode auto;
+  claude -p "/wfr <FILE.wf> Take the next Implementation ticket from the frontier, fit-check it, and complete it. If a ticket is claimed, re-claim it; no other Implementation session is currently running." --model sonnet --effort medium --permission-mode auto;
 done
 ```
 
